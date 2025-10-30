@@ -11,16 +11,11 @@ This is a Vite app containing:
 
 ### Installation
 
-#### Download the template
-
-```shell
-pnpm create solana-dapp@latest -t gh:solana-foundation/templates/web3js/daanfi
-```
 
 #### Install Dependencies
 
 ```shell
-pnpm install
+bun install
 ```
 
 ## Apps
@@ -32,7 +27,7 @@ This is a Solana program written in Rust using the Anchor framework.
 #### Commands
 
 You can use any normal anchor commands. Either move to the `anchor` directory and run the `anchor` command or prefix the
-command with `pnpm`, eg: `pnpm anchor`.
+command with `bun`, eg: `pnpm anchor`.
 
 #### Sync the program id:
 
@@ -42,31 +37,31 @@ Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file
 You will manually need to update the constant in `anchor/lib/counter-exports.ts` to match the new program id.
 
 ```shell
-pnpm anchor keys sync
+bun anchor keys sync
 ```
 
 #### Build the program:
 
 ```shell
-pnpm anchor-build
+bun anchor-build
 ```
 
 #### Start the test validator with the program deployed:
 
 ```shell
-pnpm anchor-localnet
+bun anchor-localnet
 ```
 
 #### Run the tests
 
 ```shell
-pnpm anchor-test
+bun anchor-test
 ```
 
 #### Deploy to Devnet
 
 ```shell
-pnpm anchor deploy --provider.cluster devnet
+bun anchor deploy --provider.cluster devnet
 ```
 
 ### web
@@ -78,11 +73,11 @@ This is a React app that uses the Anchor generated client to interact with the S
 Start the web app
 
 ```shell
-pnpm dev
+bun dev
 ```
 
 Build the web app
 
 ```shell
-pnpm build
+bun build
 ```
