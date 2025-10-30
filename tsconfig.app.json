@@ -22,7 +22,8 @@
     "baseUrl": ".",
     "paths": {
       "@project/anchor": ["anchor/src"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@project/server": ["server/src"]
     }
   },
   "include": ["src"]
