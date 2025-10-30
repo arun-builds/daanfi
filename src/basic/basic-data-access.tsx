@@ -23,7 +23,7 @@ export function useBasicProgram() {
 
   const greet = useMutation({
     mutationKey: ['basic', 'greet', { cluster }],
-    mutationFn: () => program.methods.greet().rpc(),
+    mutationFn: () => program.methods.initialize().rpc(),
     onSuccess: (signature) => {
       transactionToast(signature)
     },

@@ -7,7 +7,7 @@ pub mod handlers;
 use handlers::*;
 
 
-declare_id!("JAVuBXeBZqXNtS73azhBDAoYaaAFfo4gWXoZe2e7Jf8H");
+declare_id!("3ZZcUfMdaP6wZmBxbjFqJnFjtua4QwsuQov23hmoVW6L");
 
 #[program]
 pub mod basic {
