@@ -1,4 +1,4 @@
-use crate::states::Config;
+use crate::states::GovernanceConfig;
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
@@ -9,12 +9,12 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = payer,
-        space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
+        space = GovernanceConfig::DISCRIMINATOR.len() + GovernanceConfig::INIT_SPACE,
         seeds = [b"config"],
         bump,
         
     )]
-    pub config: Account<'info, Config>,
+    pub config: Account<'info, GovernanceConfig>,
 
     #[account(
         mut,
@@ -30,7 +30,7 @@ pub fn init(
     context: Context<Initialize>,
 
 ) -> Result<()> {
-    context.accounts.config.set_inner(Config {
+    context.accounts.config.set_inner(GovernanceConfig {
         is_graduated: false,
          graduated_at: 0,
           treasury_bump: context.bumps.treasury,

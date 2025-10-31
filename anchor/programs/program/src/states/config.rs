@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 #[derive(InitSpace)]
-pub struct Config {
+pub struct GovernanceConfig {
     pub is_graduated: bool,
     pub graduated_at: i64,
     pub treasury_bump: u8,
