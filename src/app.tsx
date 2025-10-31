@@ -1,39 +1,52 @@
 import { AppProviders } from '@/components/app-providers.tsx'
-import { AppLayout } from '@/components/app-layout.tsx'
-import { RouteObject, useRoutes } from 'react-router'
-import { lazy } from 'react'
+// import { RouteObject, useRoutes } from 'react-router'
+// import { lazy } from 'react'
 
-const links = [
-  //
-  { label: 'Home', path: '/' },
-  { label: 'Account', path: '/account' },
-  { label: 'Basic Program', path: '/basic' },
-]
+import { Route, Routes } from "react-router";
+import Donate from './components/donate/donate';
 
-const LazyAccountIndex = lazy(() => import('@/components/account/account-index-feature'))
-const LazyAccountDetail = lazy(() => import('@/components/account/account-detail-feature'))
-const LazyBasic = lazy(() => import('@/basic/basic-feature'))
-const LazyDashboard = lazy(() => import('@/components/dashboard/dashboard-feature'))
+// const links = [
+//   //
+//   { label: 'Home', path: '/' },
+//   { label: 'Account', path: '/account' },
+//   { label: 'Basic Program', path: '/basic' },
+// ]
 
-const routes: RouteObject[] = [
-  { index: true, element: <LazyDashboard /> },
-  {
-    path: 'account',
-    children: [
-      { index: true, element: <LazyAccountIndex /> },
-      { path: ':address', element: <LazyAccountDetail /> },
-    ],
-  },
-  { path: 'basic', element: <LazyBasic /> },
-]
+// const LazyAccountIndex = lazy(() => import('@/components/account/account-index-feature'))
+// const LazyAccountDetail = lazy(() => import('@/components/account/account-detail-feature'))
+// const LazyBasic = lazy(() => import('@/basic/basic-feature'))
+// const LazyDashboard = lazy(() => import('@/components/dashboard/dashboard-feature'))
 
-console.log({ links, routes })
+// const routes: RouteObject[] = [
+//   { index: true, element: <LazyDashboard /> },
+//   {
+//     path: 'account',
+//     children: [
+//       { index: true, element: <LazyAccountIndex /> },
+//       { path: ':address', element: <LazyAccountDetail /> },
+//     ],
+//   },
+//   { path: 'basic', element: <LazyBasic /> },
+// ]
+
+// console.log({ links, routes })
 
 export function App() {
-  const router = useRoutes(routes)
-  return (
-    <AppProviders>
-      <AppLayout links={links}>{router}</AppLayout>
-    </AppProviders>
-  )
+  // const router = useRoutes(routes)
+  // return (
+  //   <AppProviders>
+  //     <AppLayout links={links}>{router}</AppLayout>
+  //   </AppProviders>
+  // )
+
+return (
+  <AppProviders>
+    {/* <AppLayout links={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Campaigns', path: '/campaigns' }]}> */}
+      <Routes>
+    <Route path="/donate" element={<Donate />} />
+    <Route path="/campaigns" element={<div>Campaigns</div>} />
+  </Routes>
+  {/* </AppLayout> */}
+  </AppProviders>
+)
 }

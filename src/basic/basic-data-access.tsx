@@ -18,12 +18,12 @@ export function useBasicProgram() {
 
   const getProgramAccount = useQuery({
     queryKey: ['get-program-account', { cluster }],
-    queryFn: () => connection.getParsedAccountInfo(programId),
+    queryFn:  () =>  connection.getParsedAccountInfo(programId),
   })
 
   const greet = useMutation({
     mutationKey: ['basic', 'greet', { cluster }],
-    mutationFn: () => program.methods.initialize().rpc(),
+    mutationFn:  () =>  program.methods.initialize().rpc(),
     onSuccess: (signature) => {
       transactionToast(signature)
     },
