@@ -4,6 +4,8 @@ import { AppProviders } from '@/components/app-providers.tsx'
 
 import { Route, Routes } from "react-router";
 import Donate from './components/donate/donate';
+import { SolanaAuthButton } from './components/auth/SolanaAuth';
+import { User } from './components/user/User';
 
 // const links = [
 //   //
@@ -45,6 +47,8 @@ return (
       <Routes>
     <Route path="/donate" element={<Donate />} />
     <Route path="/campaigns" element={<div>Campaigns</div>} />
+    <Route path="/auth" element={<SolanaAuthButton />} />
+    <Route path="/user" element={<User />} />
   </Routes>
   {/* </AppLayout> */}
   </AppProviders>
