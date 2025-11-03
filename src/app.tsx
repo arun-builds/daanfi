@@ -6,6 +6,8 @@ import { Route, Routes } from "react-router";
 import Donate from './components/donate/donate';
 import { SolanaAuthButton } from './components/auth/SolanaAuth';
 import { User } from './components/user/User';
+import LandingPage from './pages/LandingPage';
+import TreasuryDashboard from './pages/Treasury';
 
 // const links = [
 //   //
@@ -46,6 +48,8 @@ return (
     {/* <AppLayout links={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Campaigns', path: '/campaigns' }]}> */}
       <Routes>
     <Route path="/donate" element={<Donate />} />
+    <Route path="/" element={<LandingPage  />} />
+    <Route path="/treasury" element={<TreasuryDashboard  />} />
     <Route path="/campaigns" element={<div>Campaigns</div>} />
     <Route path="/auth" element={<SolanaAuthButton />} />
     <Route path="/user" element={<User />} />
