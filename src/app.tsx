@@ -66,6 +66,7 @@ return (
 
     <Route path="/user-pda" element={<UserPda />} />
     {/* <Route path="/campaign/:sponsor/:id" element={<CampaignDetail />} /> */}
+    {/* <Route path="/campaign/:sponsor/:id" element={<CampaignDetail />} /> */}
   </Routes>
   {/* </AppLayout> */}
   </AppProviders>
