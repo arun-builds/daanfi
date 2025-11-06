@@ -8,12 +8,18 @@ import { SolanaAuthButton } from './components/auth/SolanaAuth';
 import { User } from './components/user/User';
 import LandingPage from './pages/LandingPage';
 import TreasuryDashboard from './pages/Treasury';
+<<<<<<< Updated upstream
 import DonationCard from './components/DonationCard';
 import Campaigns from './pages/CampaignsPage';
 import CampaignsPage from './pages/CampaignsPage';
 import ProfilePage from './pages/ProfilePage';
 import CampaignPage from './pages/CampaignPage';
 import ContentPage from './pages/ContentPage';
+=======
+import { Campaigns } from './components/campagins/Campaigns';
+import { UserPda } from './components/user/UserPda';
+import CampaignDetail from './components/campagins/CampaignDetail';
+>>>>>>> Stashed changes
 
 // const links = [
 //   //
@@ -56,13 +62,22 @@ return (
     <Route path="/donate" element={<Donate />} />
     <Route path="/" element={<LandingPage  />} />
     <Route path="/treasury" element={<TreasuryDashboard  />} />
+<<<<<<< Updated upstream
     <Route path="/campaigns" element={<CampaignPage/>} />
+=======
+    <Route path="/campaigns" element={<Campaigns />} />
+>>>>>>> Stashed changes
     <Route path="/auth" element={<SolanaAuthButton />} />
     <Route path="/content" element={<ContentPage/>} />
     <Route path="/user" element={<User />} />
+<<<<<<< Updated upstream
     <Route path="/camp" element={<CampaignsPage />} />
     <Route path="/profile" element={<ProfilePage />} />
 
+=======
+    <Route path="/user-pda" element={<UserPda />} />
+    <Route path="/campaign/:sponsor/:id" element={<CampaignDetail />} />
+>>>>>>> Stashed changes
   </Routes>
   {/* </AppLayout> */}
   </AppProviders>

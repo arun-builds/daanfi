@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 pub mod states;
 pub mod handlers;
 mod errors;
+mod constants;
 
 use handlers::*;
 use states::Milestone;
@@ -19,13 +20,18 @@ pub mod basic {
         Ok(())
     }
 
-    pub fn create_campaign(ctx: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>) -> Result<()> {
-        handlers::create_campaign(ctx, id, total_amount, milestones)?;
+    pub fn create_campaign(ctx: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey) -> Result<()> {
+        handlers::create_campaign(ctx, id, total_amount, milestones, beneficiary)?;
         Ok(())
     }
 
     pub fn donate(ctx: Context<Donate>, amount: u64) -> Result<()> {
         handlers::donate(ctx, amount)?;
+        Ok(())
+    }
+
+    pub fn record_vote(ctx: Context<RecordVote>, milestone_index: u8, is_agreed: bool) -> Result<()> {
+        handlers::record_vote(ctx, milestone_index, is_agreed)?;
         Ok(())
     }
 }

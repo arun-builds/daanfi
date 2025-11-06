@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   FileText,
   Settings,
   Package,
+  Cog,
 } from "lucide-react";
 import {
   Bar,
@@ -21,9 +22,23 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+<<<<<<< Updated upstream
 import Sidebar from "@/components/Sidebar";
+=======
+import { useDonate } from "@/components/donate/donate-data-access";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+>>>>>>> Stashed changes
 
 export default function TreasuryDashboard() {
+
+  const{getTreasuryBalance} = useDonate()
+  const [treasuryBalance, setTreasuryBalance] = useState(0)
+
+  useEffect(() => {
+    if (getTreasuryBalance.data) {
+      setTreasuryBalance(getTreasuryBalance.data / LAMPORTS_PER_SOL)
+    }
+  }, [getTreasuryBalance.data])
   const chartData = [
     { month: "Jan", totalIn: 400, totalOut: 300 },
     { month: "Feb", totalIn: 500, totalOut: 400 },
@@ -54,10 +69,10 @@ export default function TreasuryDashboard() {
   ];
 
   const accounts = [
-    { name: "Multisig", amount: "$60,3350.49", color: "bg-lime-400" },
-    { name: "Mercury Account", amount: "$99,153.49", color: "bg-green-500" },
-    { name: "Custodial Wallet", amount: "$25,3650.59", color: "bg-lime-300" },
-    { name: "Deposit Account", amount: "$140,356.99", color: "bg-green-600" },
+    { name: "Incoming", amount: "$60,3350.49", color: "bg-lime-400" },
+    { name: "Outgoing", amount: "$99,153.49", color: "bg-green-500" },
+    // { name: "Custodial Wallet", amount: "$25,3650.59", color: "bg-lime-300" },
+    // { name: "Deposit Account", amount: "$140,356.99", color: "bg-green-600" },
   ];
 
   return (
@@ -68,14 +83,15 @@ export default function TreasuryDashboard() {
       {/* Main Content */}
       <div className="ml-64 p-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">Treasury</h1>
+          <h1 className="text-4xl font-bold ">Treasury</h1>
           <Button className="bg-lime-600 hover:bg-lime-700 text-white">
             Manage Account
+            <Cog />
           </Button>
         </div>
 
         {/* Balance Overview */}
-        <Card className="mb-8 border-none shadow-none">
+        <Card className="mb-8 border-none shadow-none bg-white">
           <CardContent className="p-8">
             <div className="grid grid-cols-3 gap-8 mb-6">
               <div>
@@ -83,7 +99,7 @@ export default function TreasuryDashboard() {
                   TOTAL BALANCE
                 </div>
                 <div className="text-5xl font-bold text-gray-900">
-                  $378,842<span className="text-3xl">.90</span>
+                  ${treasuryBalance * 184.99}
                 </div>
               </div>
               <div>
@@ -91,26 +107,19 @@ export default function TreasuryDashboard() {
                   CRYPTO
                 </div>
                 <div className="text-3xl font-semibold text-gray-900">
-                  $74,658<span className="text-2xl">.42</span>
+                  {treasuryBalance} SOL
                 </div>
               </div>
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-2">
-                  FIAT
-                </div>
-                <div className="text-3xl font-semibold text-gray-900">
-                  $54,962<span className="text-2xl">.66</span>
-                </div>
-              </div>
+            
             </div>
 
             {/* Balance Bar */}
             <div className="flex gap-1 mb-4 h-3 rounded-full overflow-hidden">
-              <div className="bg-lime-400" style={{ width: "16%" }}></div>
-              <div className="bg-green-500" style={{ width: "26%" }}></div>
-              <div className="bg-lime-300" style={{ width: "26%" }}></div>
+              <div className="bg-lime-400" style={{ width: "70%" }}></div>
+              <div className="bg-green-500" style={{ width: "30%" }}></div>
+              {/* <div className="bg-lime-300" style={{ width: "26%" }}></div>
               <div className="bg-green-600" style={{ width: "6%" }}></div>
-              <div className="bg-lime-500" style={{ width: "26%" }}></div>
+              <div className="bg-lime-500" style={{ width: "26%" }}></div> */}
             </div>
 
             {/* Account Labels */}

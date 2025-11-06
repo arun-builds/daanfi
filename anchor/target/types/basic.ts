@@ -75,6 +75,10 @@ export type Basic = {
               {
                 "kind": "account",
                 "path": "sponsor"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
               }
             ]
           }
@@ -102,6 +106,10 @@ export type Basic = {
               }
             }
           }
+        },
+        {
+          "name": "beneficiary",
+          "type": "pubkey"
         }
       ]
     },
@@ -280,6 +288,168 @@ export type Basic = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "recordVote",
+      "discriminator": [
+        184,
+        0,
+        179,
+        29,
+        33,
+        23,
+        130,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "voter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.sponsor",
+                "account": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.id",
+                "account": "campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "userProfile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "voteReciept",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  111,
+                  116,
+                  101,
+                  95,
+                  114,
+                  101,
+                  99,
+                  105,
+                  101,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "arg",
+                "path": "milestoneIndex"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "milestoneIndex",
+          "type": "u8"
+        },
+        {
+          "name": "isAgreed",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -321,6 +491,19 @@ export type Basic = {
         13,
         194
       ]
+    },
+    {
+      "name": "voteReciept",
+      "discriminator": [
+        127,
+        231,
+        189,
+        8,
+        3,
+        160,
+        222,
+        57
+      ]
     }
   ],
   "errors": [
@@ -335,6 +518,50 @@ export type Basic = {
     {
       "code": 6002,
       "name": "invalidDonationAmount"
+    },
+    {
+      "code": 6003,
+      "name": "invalidTotalVotes"
+    },
+    {
+      "code": 6004,
+      "name": "invalidTotalAgreedVotes"
+    },
+    {
+      "code": 6005,
+      "name": "invalidTotalDisagreedVotes"
+    },
+    {
+      "code": 6006,
+      "name": "invalidMilestoneStatus"
+    },
+    {
+      "code": 6007,
+      "name": "invalidReputationScore"
+    },
+    {
+      "code": 6008,
+      "name": "invalidSponsor"
+    },
+    {
+      "code": 6009,
+      "name": "notAboveThreshold"
+    },
+    {
+      "code": 6010,
+      "name": "invalidBeneficiary"
+    },
+    {
+      "code": 6011,
+      "name": "milestoneThresholdCalculationError"
+    },
+    {
+      "code": 6012,
+      "name": "notEnoughVotes"
+    },
+    {
+      "code": 6013,
+      "name": "invalidMilestoneIndex"
     }
   ],
   "types": [
@@ -356,6 +583,10 @@ export type Basic = {
             "type": "u64"
           },
           {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
             "name": "milestones",
             "type": {
               "vec": {
@@ -366,12 +597,28 @@ export type Basic = {
             }
           },
           {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "status"
+              }
+            }
+          },
+          {
+            "name": "totalMilestonesCompleted",
+            "type": "u8"
+          },
+          {
             "name": "createdAt",
             "type": "i64"
           },
           {
             "name": "updatedAt",
             "type": "i64"
+          },
+          {
+            "name": "campaignBump",
+            "type": "u8"
           }
         ]
       }
@@ -418,12 +665,41 @@ export type Basic = {
             "type": "u8"
           },
           {
-            "name": "isCompleted",
-            "type": "bool"
+            "name": "totalVotes",
+            "type": "u64"
           },
           {
-            "name": "completedAt",
-            "type": "i64"
+            "name": "totalAgreedVotes",
+            "type": "u64"
+          },
+          {
+            "name": "totalDisagreedVotes",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "status"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "status",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "ongoing"
+          },
+          {
+            "name": "completed"
+          },
+          {
+            "name": "cancelled"
           }
         ]
       }
@@ -452,6 +728,38 @@ export type Basic = {
           {
             "name": "reputationScore",
             "type": "u16"
+          },
+          {
+            "name": "userProfileBump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "voteReciept",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestoneIndex",
+            "type": "u8"
+          },
+          {
+            "name": "isAgreed",
+            "type": "bool"
+          },
+          {
+            "name": "voteReceiptBump",
+            "type": "u8"
           }
         ]
       }

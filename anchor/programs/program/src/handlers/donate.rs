@@ -49,6 +49,7 @@ pub fn donate(context: Context<Donate>, amount: u64) -> Result<()> {
         total_donated_u64: total_donated_amount,
         last_donation_amount: last_donation_amount,
         reputation_score: 0,
+        user_profile_bump: context.bumps.user_profile,
     });
     Ok(())
 }

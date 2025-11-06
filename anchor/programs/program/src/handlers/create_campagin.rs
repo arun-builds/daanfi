@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::states::{Campaign, GovernanceConfig, Milestone};
+use crate::states::{Campaign, GovernanceConfig, Milestone, Status};
 use crate::errors::ErrorCode;
 
 #[derive(Accounts)]
+#[instruction(id:u64)]
 pub struct CreateCampaign<'info> {
     #[account(mut)]
     pub sponsor: Signer<'info>,
@@ -17,14 +18,14 @@ pub struct CreateCampaign<'info> {
         init,
         payer = sponsor,
         space = Campaign::DISCRIMINATOR.len() + Campaign::INIT_SPACE,
-        seeds = [b"campaign", config.key().as_ref(), sponsor.key().as_ref()],
+        seeds = [b"campaign", config.key().as_ref(), sponsor.key().as_ref(), id.to_le_bytes().as_ref()],
         bump,
     )]
     pub campaign: Account<'info, Campaign>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>) -> Result<()> {
+pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey) -> Result<()> {
 
     require!(total_amount > 0, ErrorCode::InvalidTotalAmount);
 
@@ -46,6 +47,11 @@ pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: 
         milestones,
         created_at: now,
         updated_at: now,
+        campaign_bump: context.bumps.campaign,
+        beneficiary,
+        status: Status::Ongoing,
+        total_milestones_completed: 0,
+
     });
     Ok(())
 }

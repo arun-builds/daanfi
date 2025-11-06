@@ -1,19 +1,16 @@
-import { getBasicProgram, getBasicProgramId } from '@project/anchor';
+
 import { useEffect, useState } from 'react';
-import { Cluster, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { useCluster } from '../cluster/cluster-data-access';
-import { useAnchorProvider } from '../solana/use-anchor-provider';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 import BN from 'bn.js';
 import { AppHeader } from '../app-header';
 import { useDonate } from './donate-data-access';
 import { Button } from '../ui/button';
 
+
+
 export default function Donate() {
     const [treasuryBalance, setTreasuryBalance] = useState(0)
-    const { connection } = useConnection()
-    const { cluster } = useCluster()
-    const provider = useAnchorProvider()
     const wallet = useWallet()
     const publicKey = wallet.publicKey
     const { initializeProgram, donate, getTreasuryBalance } = useDonate()

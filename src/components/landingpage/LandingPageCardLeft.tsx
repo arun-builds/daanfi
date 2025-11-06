@@ -78,7 +78,7 @@ export default function LandingPageCardLeft({
             </div>
 
             {/* Donate Button */}
-            <Button className="w-full bg-lime-400 hover:bg-lime-500 text-emerald-900 font-semibold py-6 rounded-2xl flex items-center justify-between text-base transition-all shadow-lg">
+            <Button className="w-full bg-lime-50 hover:bg-lime-500 text-emerald-900 font-semibold py-6 rounded-2xl flex items-center justify-between text-base transition-all shadow-lg">
               <span>Donate now</span>
               <div className="bg-emerald-900 rounded-full p-2">
                 <ArrowUpRight className="w-5 h-5 text-lime-400" />

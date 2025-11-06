@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { useAnchorProvider } from '@/components/solana/use-anchor-provider.tsx'
 import BN from 'bn.js' // Assuming BN is needed for campaign/donation amounts
 
+
 export function useDonate() {
     const { connection } = useConnection()
   const { cluster } = useCluster()
@@ -20,6 +21,8 @@ export function useDonate() {
   
   // Cast to your program's type (replace 'Basic' with your actual program type if different)
   const program = useMemo(() => getBasicProgram(provider, programId), [provider, programId])
+  
+
 
   const [config, configBump] = PublicKey.findProgramAddressSync([Buffer.from("config")], program.programId)
   const [treasury, treasuryBump] = PublicKey.findProgramAddressSync([Buffer.from("treasury"), config.toBuffer()], program.programId)

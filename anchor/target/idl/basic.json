@@ -69,6 +69,10 @@
               {
                 "kind": "account",
                 "path": "sponsor"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
               }
             ]
           }
@@ -96,6 +100,10 @@
               }
             }
           }
+        },
+        {
+          "name": "beneficiary",
+          "type": "pubkey"
         }
       ]
     },
@@ -274,6 +282,168 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "record_vote",
+      "discriminator": [
+        184,
+        0,
+        179,
+        29,
+        33,
+        23,
+        130,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "voter",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.sponsor",
+                "account": "Campaign"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.id",
+                "account": "Campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vote_reciept",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  111,
+                  116,
+                  101,
+                  95,
+                  114,
+                  101,
+                  99,
+                  105,
+                  101,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "voter"
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "arg",
+                "path": "milestone_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "milestone_index",
+          "type": "u8"
+        },
+        {
+          "name": "is_agreed",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -315,6 +485,19 @@
         13,
         194
       ]
+    },
+    {
+      "name": "VoteReciept",
+      "discriminator": [
+        127,
+        231,
+        189,
+        8,
+        3,
+        160,
+        222,
+        57
+      ]
     }
   ],
   "errors": [
@@ -329,6 +512,50 @@
     {
       "code": 6002,
       "name": "InvalidDonationAmount"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTotalVotes"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidTotalAgreedVotes"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidTotalDisagreedVotes"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidMilestoneStatus"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidReputationScore"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidSponsor"
+    },
+    {
+      "code": 6009,
+      "name": "NotAboveThreshold"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidBeneficiary"
+    },
+    {
+      "code": 6011,
+      "name": "MilestoneThresholdCalculationError"
+    },
+    {
+      "code": 6012,
+      "name": "NotEnoughVotes"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMilestoneIndex"
     }
   ],
   "types": [
@@ -350,6 +577,10 @@
             "type": "u64"
           },
           {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
             "name": "milestones",
             "type": {
               "vec": {
@@ -360,12 +591,28 @@
             }
           },
           {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "Status"
+              }
+            }
+          },
+          {
+            "name": "total_milestones_completed",
+            "type": "u8"
+          },
+          {
             "name": "created_at",
             "type": "i64"
           },
           {
             "name": "updated_at",
             "type": "i64"
+          },
+          {
+            "name": "campaign_bump",
+            "type": "u8"
           }
         ]
       }
@@ -412,12 +659,41 @@
             "type": "u8"
           },
           {
-            "name": "is_completed",
-            "type": "bool"
+            "name": "total_votes",
+            "type": "u64"
           },
           {
-            "name": "completed_at",
-            "type": "i64"
+            "name": "total_agreed_votes",
+            "type": "u64"
+          },
+          {
+            "name": "total_disagreed_votes",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "Status"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Status",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Ongoing"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
           }
         ]
       }
@@ -446,6 +722,38 @@
           {
             "name": "reputation_score",
             "type": "u16"
+          },
+          {
+            "name": "user_profile_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VoteReciept",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          },
+          {
+            "name": "is_agreed",
+            "type": "bool"
+          },
+          {
+            "name": "vote_receipt_bump",
+            "type": "u8"
           }
         ]
       }
