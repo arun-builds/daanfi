@@ -22,12 +22,9 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-<<<<<<< Updated upstream
 import Sidebar from "@/components/Sidebar";
-=======
 import { useDonate } from "@/components/donate/donate-data-access";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
->>>>>>> Stashed changes
 
 export default function TreasuryDashboard() {
 
