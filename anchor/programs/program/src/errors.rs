@@ -15,5 +15,6 @@ pub enum ErrorCode {
     InvalidBeneficiary,
     MilestoneThresholdCalculationError,
     NotEnoughVotes,
-    InvalidMilestoneIndex
+    InvalidMilestoneIndex,
+    MilestoneNotPending
 }

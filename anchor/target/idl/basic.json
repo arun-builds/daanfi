@@ -8,6 +8,122 @@
   },
   "instructions": [
     {
+      "name": "complete_milestone",
+      "discriminator": [
+        137,
+        164,
+        160,
+        100,
+        33,
+        64,
+        178,
+        10
+      ],
+      "accounts": [
+        {
+          "name": "sponsor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.sponsor",
+                "account": "Campaign"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.id",
+                "account": "Campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "beneficiary",
+          "docs": [
+            "is verified explicitly in the instruction logic below."
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "milestone_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "create_campaign",
       "discriminator": [
         111,
@@ -564,6 +680,10 @@
     {
       "code": 6013,
       "name": "InvalidMilestoneIndex"
+    },
+    {
+      "code": 6014,
+      "name": "MilestoneNotPending"
     }
   ],
   "types": [
@@ -702,6 +822,9 @@
       "type": {
         "kind": "enum",
         "variants": [
+          {
+            "name": "Pending"
+          },
           {
             "name": "Ongoing"
           },

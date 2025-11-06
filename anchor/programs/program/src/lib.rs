@@ -34,4 +34,9 @@ pub mod basic {
         handlers::record_vote(ctx, milestone_index, is_agreed)?;
         Ok(())
     }
+
+    pub fn complete_milestone(ctx: Context<CompleteMilestone>, milestone_index: u8) -> Result<()> {
+        handlers::complete_milestone(ctx, milestone_index)?;
+        Ok(())
+    }
 }

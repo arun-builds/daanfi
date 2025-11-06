@@ -33,7 +33,8 @@ pub struct Milestone {
 
 #[derive(AnchorDeserialize, AnchorSerialize,Clone,InitSpace,PartialEq)]
 pub enum Status {
-    Ongoing = 0,
-    Completed = 1,
-    Cancelled = 2,
+    Pending = 0,
+    Ongoing = 1,
+    Completed = 2,
+    Cancelled = 3,
 }

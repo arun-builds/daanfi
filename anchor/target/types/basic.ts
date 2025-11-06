@@ -14,6 +14,122 @@ export type Basic = {
   },
   "instructions": [
     {
+      "name": "completeMilestone",
+      "discriminator": [
+        137,
+        164,
+        160,
+        100,
+        33,
+        64,
+        178,
+        10
+      ],
+      "accounts": [
+        {
+          "name": "sponsor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  109,
+                  112,
+                  97,
+                  105,
+                  103,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.sponsor",
+                "account": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "campaign.id",
+                "account": "campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "beneficiary",
+          "docs": [
+            "is verified explicitly in the instruction logic below."
+          ],
+          "writable": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "milestoneIndex",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "createCampaign",
       "discriminator": [
         111,
@@ -570,6 +686,10 @@ export type Basic = {
     {
       "code": 6013,
       "name": "invalidMilestoneIndex"
+    },
+    {
+      "code": 6014,
+      "name": "milestoneNotPending"
     }
   ],
   "types": [
@@ -708,6 +828,9 @@ export type Basic = {
       "type": {
         "kind": "enum",
         "variants": [
+          {
+            "name": "pending"
+          },
           {
             "name": "ongoing"
           },
