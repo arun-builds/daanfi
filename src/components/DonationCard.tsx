@@ -1,37 +1,33 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Heart } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import { useNavigate } from "react-router";
+import { BN } from '@coral-xyz/anchor';
 
 export interface DonationCardProps {
-  id: number;
   image: string;
   title: string;
   description: string;
   raised: number;
   goal: number;
-  supporters: number;
-  category: string;
   showImage?: boolean;
   className?: string;
-  onDonate?: (id: number) => void;
-  onShare?: (id: number) => void;
+  sponsor: string
+  campaignId: BN
 }
 
 const DonationCard: React.FC<DonationCardProps> = ({
-  id,
   image,
   title,
   description,
   raised,
   goal,
-  supporters,
-  category,
   showImage = true,
   className = '',
-  onDonate,
-  onShare,
+  sponsor,
+  campaignId
 }) => {
+  const navigate = useNavigate();
   const calculateProgress = (raised: number, goal: number) => {
     return Math.min((raised / goal) * 100, 100);
   };
@@ -43,18 +39,6 @@ const DonationCard: React.FC<DonationCardProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
-
-  const handleDonate = () => {
-    onDonate?.(id);
-  };
-
-  const handleShare = () => {
-    onShare?.(id);
   };
 
   return (
@@ -106,32 +90,40 @@ const DonationCard: React.FC<DonationCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        {/* <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 fill-pink-500 text-pink-500" />
+            <ThumbsUp className="w-5 h-5 fill-lime-500 text-lime-500" />
             <span className="text-gray-600">
-              {formatNumber(supporters)} Supporters
+              {formatNumber(supporters)} Upvotes
             </span>
           </div>
-          <Badge variant="outline" className="text-gray-600 border-gray-300">
+          <div className="flex items-center gap-2">
+          <ThumbsDown className="w-5 h-5 fill-red-500 text-red-500" />
+          <span className="text-gray-600">
+          
+              {formatNumber(supporters)} Downvotes
+            </span>
+          </div>
+          {/* <Badge variant="outline" className="text-gray-600 border-gray-300">
             {category}
-          </Badge>
-        </div>
+          </Badge> 
+        </div> */}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex items-center justify-end gap-2 pt-2 w-full">
           <button
-            onClick={handleDonate}
-            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-center"
+            onClick={() => navigate(`/campaign/${sponsor}/${campaignId.toString()}`)}
+            className=" bg-lime-500  hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-center flex items-center justify-center gap-1"
           >
-            Donate Now
+            Explore
+            <ArrowUpRight className="w-4 h-4 " />
           </button>
-          <button
+          {/* <button
             onClick={handleShare}
-            className="px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+            className="px-4 py-2 border w-1/2 border-gray-300 hover:bg-gray-50 rounded-lg transition-colors duration-200"
           >
-            Vote
-          </button>
+            Downvote
+          </button> */}
         </div>
       </CardContent>
     </Card>

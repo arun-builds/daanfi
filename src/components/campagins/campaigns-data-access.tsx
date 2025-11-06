@@ -40,6 +40,8 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
 
 
   const totalAmount = new BN(6000)
+  const title = 'Test Campaign'
+  const description = 'This is a test campaign'
 
   const milestones = [
     { id: new BN(1), amount: new BN(2000), order: 0, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
@@ -102,7 +104,7 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
   const createCampaign = useMutation({
 
     mutationKey: ['create-campaign', { cluster }],
-    mutationFn: () => program.methods.createCampaign(id, totalAmount, milestones, beneficiary).accounts({
+    mutationFn: () => program.methods.createCampaign(id, totalAmount, milestones, beneficiary, title, description).accounts({
       sponsor: wallet.publicKey as PublicKey,
     }).rpc(),
     onSuccess: () => {

@@ -22,6 +22,7 @@ pub struct Donate<'info> {
         bump
     )]
     pub user_profile: Account<'info, UserProfile>,
+    
     #[account(
         mut,
         seeds = [b"treasury", config.key().as_ref()],

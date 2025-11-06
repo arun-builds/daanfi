@@ -9,13 +9,13 @@ const Sidebar = () => {
     <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-lime-200 p-6">
       <div className="flex items-center gap-3 mb-8">
         <Package className="w-8 h-8 text-lime-600" />
-        <span className="font-bold text-xl text-gray-800">TREASURYIAX</span>
+        <span className="font-bold text-xl text-gray-800">DAANFI</span>
       </div>
 
       <nav className="space-y-2">
-        <Button onClick={()=>{ navigate('/treasury') }} variant="ghost" className="w-full justify-start bg-lime-100 text-lime-900 hover:bg-lime-200">
+        <Button onClick={()=>{ navigate('/dashboard') }} variant="ghost" className="w-full justify-start bg-lime-100 text-lime-900 hover:bg-lime-200">
           <Landmark className="mr-3 h-5 w-5" />
-          Treasury
+          Dashboard
         </Button>
         <Button onClick={()=>navigate('/campaigns')} variant="ghost" className="w-full justify-start bg-lime-100 text-lime-900 hover:bg-lime-200">
           <Users className="mr-3 h-5 w-5" />

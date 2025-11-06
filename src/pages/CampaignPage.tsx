@@ -4,6 +4,60 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Search, Filter, Plus } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import DonationCard from '@/components/DonationCard';
+import { useWallet } from '@solana/wallet-adapter-react';
+import BN from 'bn.js';
+import { PublicKey } from '@solana/web3.js';
+import { useCampaigns } from '@/components/campagins/campaigns-data-access';
+
+type AnchorMilestoneData = {
+  id: BN;
+  amount: BN;
+  order: number;
+  totalVotes: BN;
+  totalAgreedVotes: BN;
+  totalDisagreedVotes: BN;
+  status: { ongoing?: {}; completed?: {}; cancelled?: {}; }; // Must match Anchor's return type
+}
+
+type AnchorProgramAccount = {
+  account: {
+      id: BN;
+      sponsor: PublicKey;
+      totalAmount: BN;
+      title: string;
+      description: string;
+      milestones: AnchorMilestoneData[];
+      beneficiary: PublicKey;
+  }
+}
+
+// Your clean display type (using the imported Status type)
+type Status = {
+  ongoing?: Record<string, never>;
+  completed?: Record<string, never>;
+  cancelled?: Record<string, never>;
+}
+
+type Milestone = {
+  id: BN;
+  amount: BN;
+  order: number;
+  totalVotes: BN;
+  totalAgreedVotes: BN;
+  totalDisagreedVotes: BN;
+  isCompleted: boolean;
+  status: Status;
+}
+
+export type Campaign = {
+  id: BN;
+  title: string;
+  description: string;
+  sponsor: string;
+  totalAmount: BN;
+  milestones: Milestone[];
+  beneficiary: string;
+}
 
 // Mock data for demonstration
 const MOCK_CAMPAIGNS = [
@@ -101,38 +155,63 @@ const MOCK_CAMPAIGNS = [
 const ITEMS_PER_PAGE = 6;
 
 const CampaignPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterBrand, setFilterBrand] = useState('All');
 
-  // Calculate pagination
-  const totalPages = Math.ceil(MOCK_CAMPAIGNS.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const [id, setId] = useState(new BN(1))
+    const wallet = useWallet()
+    const publicKey = wallet.publicKey
+
+  const { getCampaigns, createCampaign } = useCampaigns({beneficiary: new PublicKey("4rAvATEgWMVGjrxiF1AiY6qn4SCCEg92EgURySVfxcP2"), id: id, sponsor: publicKey as PublicKey});
+  if (!publicKey) {
+    return <div>Connect your wallet to view campaigns</div>;
+}
+const { data: campaigns, isLoading, error } = getCampaigns; 
+
+// Handle initial loading and error states
+if (isLoading) {
+    return <div>Loading campaigns...</div>;
+}
+
+if (error) {
+    return <div>Error loading campaigns: {error.message}</div>; 
+}
+
+const campaignList: Campaign[] = (campaigns as AnchorProgramAccount[] || [])
+    .map(programAccount => ({
+        id: programAccount.account.id,
+        totalAmount: programAccount.account.totalAmount,
+        title: programAccount.account.title,
+        description: programAccount.account.description,
+        // 🔑 Map Milestones: Extracting data and deriving 'isCompleted'
+        milestones: programAccount.account.milestones.map(milestone => ({
+            id: milestone.id,
+            amount: milestone.amount,
+            order: milestone.order,
+            totalVotes: milestone.totalVotes,
+            totalAgreedVotes: milestone.totalAgreedVotes,
+            totalDisagreedVotes: milestone.totalDisagreedVotes,
+            
+            // FIX: Simplifies boolean check based on the completed variant's presence
+            isCompleted: !!milestone.status.completed, 
+            
+            // Use of 'unknown' is necessary here to map the dynamic JS object back to the static TS type
+            status: milestone.status as unknown as Status, 
+        })),
+        beneficiary: programAccount.account.beneficiary.toBase58(),
+        sponsor: programAccount.account.sponsor.toBase58(), 
+    }));
   
-  // Filter campaigns based on search and filter
-  const filteredCampaigns = MOCK_CAMPAIGNS.filter(campaign => {
-    const matchesSearch = campaign.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBrand = filterBrand === 'All' || campaign.brand === filterBrand;
-    return matchesSearch && matchesBrand;
-  });
 
-  const currentCampaigns = filteredCampaigns.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const handlePrevious = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleNext = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
-  };
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Get unique brands for filter
-  const brands = ['All', ...new Set(MOCK_CAMPAIGNS.map(campaign => campaign.brand))];
+    const handleCreateCampaign = () => {
+      // Automatically disables button if creation is pending (via disabled={createCampaign.isPending})
+      createCampaign.mutate();
+      if (createCampaign.isSuccess) {
+          setId(id.add(new BN(1)));
+      }
+  }
+  
+  
+  // const currentCampaigns = filteredCampaigns.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentCampaigns = campaignList;
 
   return (
     <div className="min-h-screen">
@@ -155,117 +234,7 @@ const CampaignPage = () => {
           </Button>
         </div>
 
-        {/* Stats Overview */}
-        {/* <div className="grid grid-cols-4 gap-6 mb-8">
-          <Card className="border-none shadow-md bg-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
-                    TOTAL CAMPAIGNS
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {MOCK_CAMPAIGNS.length}
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-lime-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lime-600 text-xl">📊</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-md bg-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
-                    ACTIVE BACKERS
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    5,642
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 text-xl">👥</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-md bg-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
-                    TOTAL RAISED
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    $2.1M
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-lime-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lime-600 text-xl">💰</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-md bg-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
-                    SUCCESS RATE
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    78%
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 text-xl">🎯</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div> */}
-
-        {/* Search and Filter Section */}
-        <Card className="mb-8 border-none ">
-          <CardContent className="p-6">
-            <div className="flex gap-4 items-center">
-              {/* Search */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search campaigns..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
-                />
-              </div>
-              
-              {/* Filter */}
-              {/* <div className="flex items-center gap-2">
-                <Filter className="text-gray-400 w-4 h-4" />
-                <select
-                  value={filterBrand}
-                  onChange={(e) => setFilterBrand(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-lime-500 focus:border-lime-500"
-                >
-                  {brands.map(brand => (
-                    <option key={brand} value={brand}>{brand}</option>
-                  ))}
-                </select>
-              </div>
-
-              <Button variant="outline" className="border-gray-300">
-                Sort By: Newest
-              </Button> */}
-            </div>
-          </CardContent>
-        </Card>
+        
 
         {/* Campaigns Grid */}
         <Card className="mb-8 border-none">
@@ -278,14 +247,13 @@ const CampaignPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentCampaigns.map((campaign, index) => (
                 <DonationCard
-                    id={index}
-                    image={campaign.image}
+                    image={MOCK_CAMPAIGNS[index].image}
                     title={campaign.title}
                   description={campaign.description}
-                  raised={campaign.raised}
-                  goal={campaign.goal}
-                  supporters={campaign.supporters}
-                  category={campaign.category}
+                  raised={MOCK_CAMPAIGNS[index].raised}
+                  goal={MOCK_CAMPAIGNS[index].goal}
+                  sponsor={campaign.sponsor}
+                  campaignId={campaign.id}
                 />
               ))}
             </div>
@@ -305,69 +273,8 @@ const CampaignPage = () => {
           </CardContent>
         </Card>
 
-        {/* Pagination */}
-        <Card className="border-none shadow-md bg-white">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Page Info */}
-              <div className="text-gray-600 text-sm">
-                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredCampaigns.length)} of{' '}
-                {filteredCampaigns.length} campaigns
-              </div>
-
-              {/* Pagination Controls */}
-              <div className="flex items-center gap-2">
-                {/* Previous Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrevious}
-                  disabled={currentPage === 1}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-
-                {/* Page Numbers */}
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => goToPage(page)}
-                      className={
-                        currentPage === page
-                          ? "bg-lime-600 hover:bg-lime-700 text-white"
-                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                      }
-                    >
-                      {page}
-                    </Button>
-                  ))}
-                </div>
-
-                {/* Next Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Mobile Pagination Info */}
-            <div className="sm:hidden text-center text-gray-500 text-sm mt-4">
-              Page {currentPage} of {totalPages}
-            </div>
-          </CardContent>
-        </Card>
+       
+        
       </div>
     </div>
   );

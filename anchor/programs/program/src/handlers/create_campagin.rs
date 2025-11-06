@@ -25,7 +25,7 @@ pub struct CreateCampaign<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey) -> Result<()> {
+pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey, title: String, description: String) -> Result<()> {
 
     require!(total_amount > 0, ErrorCode::InvalidTotalAmount);
 
@@ -51,7 +51,8 @@ pub fn create_campaign(context: Context<CreateCampaign>, id: u64, total_amount: 
         beneficiary,
         status: Status::Ongoing,
         total_milestones_completed: 0,
-
+        title,
+        description,
     });
     Ok(())
 }

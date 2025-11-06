@@ -7,8 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
-import { Heart, Lock, Unlock } from 'lucide-react';
+import { ArrowUpRight, Heart, Lock, ThumbsUp, ThumbsDown, Unlock, ChevronUp, ChevronDown, ArrowBigUp, ArrowBigDown } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
+import { useCampaigns } from '@/components/campagins/campaigns-data-access';
+import { PublicKey } from '@solana/web3.js';
+import { useParams } from 'react-router';
+import BN from 'bn.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 // Types
 interface Contributor {
@@ -83,13 +88,73 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
   const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false);
   const [votes, setVotes] = useState(campaign.votes);
   const [currentAmount, setCurrentAmount] = useState(campaign.currentAmount);
-  const [isVoting, setIsVoting] = useState(false);
 
-  const progressPercentage = Math.min((currentAmount / campaign.goalAmount) * 100, 100);
+  const wallet = useWallet();
+  const publicKey = wallet.publicKey;
+
+  const { sponsor, id } = useParams();
+
+  if (!sponsor || !id) {
+    return <div>Invalid campaign URL</div>;
+  }
+
+  const { getSingleCampaign, recordVote } = useCampaigns({
+    beneficiary: new PublicKey('4rAvATEgWMVGjrxiF1AiY6qn4SCCEg92EgURySVfxcP2'),
+    id: new BN(Number(id)),
+    sponsor: new PublicKey(sponsor),
+  });
+
+  const { data: campaignOriginal, isLoading, error } = getSingleCampaign;
+
+  if (isLoading) {
+    return <div>Loading campaign...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading campaign: {error.message}</div>;
+  }
+
+  const totalMilestones = campaignOriginal?.milestones?.length || 0;
+  const completedMilestones = campaignOriginal?.milestones?.filter(milestone => milestone.status.completed).length || 0;
+  const onGoingMilestoneIndex = campaignOriginal?.milestones?.findIndex(milestone => milestone.status.ongoing) || 0;
+  const onGoingMilestone = campaignOriginal?.milestones?.[onGoingMilestoneIndex];
+  const numberForOnGoingMilestones = completedMilestones + 1;
+  const progressPercentage = completedMilestones / totalMilestones * 100;
+
+  let progressPercentageForMilestoneBar = 1 / totalMilestones * 100;
+  if (progressPercentageForMilestoneBar > 0 && progressPercentageForMilestoneBar < 50) {
+    progressPercentageForMilestoneBar = 5;
+  } else if (progressPercentageForMilestoneBar > 50 && progressPercentageForMilestoneBar < 100) {
+    progressPercentageForMilestoneBar = 50;
+  } else if (progressPercentageForMilestoneBar > 100) {
+    progressPercentageForMilestoneBar = 100;
+  }
+
+  const donatedAmount = campaignOriginal?.milestones.find(milestone => milestone.status.completed)?.amount.toString() || '0';
+
   const visibleContributors = campaign.contributors.slice(0, 3);
   const remainingContributors = campaign.contributors.length - visibleContributors.length;
 
   const presetAmounts = [10, 25, 50, 100];
+
+  const handleVote = (isAgreed: boolean) => {
+    if (!publicKey) {
+      toast.error("Connect wallet to vote");
+      return;
+    }
+    if (!onGoingMilestone?.status.ongoing) {
+      toast.error("This milestone is not open for voting");
+      return;
+    }
+    const t = toast.loading(isAgreed ? "Casting YES vote..." : "Casting NO vote...");
+    recordVote.mutate(
+      { milestoneIndex: onGoingMilestoneIndex, isAgreed, sponsor: new PublicKey(sponsor) },
+      {
+        onSuccess: () => toast.success("Vote recorded", { id: t }),
+        onError: (e: any) => toast.error(e?.message ?? "Failed to record vote", { id: t }),
+      }
+    );
+  };
 
   const handleDonate = () => {
     const amount = parseFloat(donationAmount);
@@ -101,24 +166,10 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
     setCurrentAmount(prev => prev + amount);
     setIsDonateDialogOpen(false);
     setDonationAmount('');
-    
+
     toast.success(`Thank you for your donation of $${amount.toFixed(2)}!`, {
       description: 'Your support helps make this project possible.',
     });
-  };
-
-  const handleVote = async () => {
-    if (isVoting) return;
-    
-    setIsVoting(true);
-    setVotes(prev => prev + 1);
-    
-    toast.success('Thanks for voting!', {
-      description: 'Your vote has been recorded.',
-    });
-    
-    // Reset voting state after animation
-    setTimeout(() => setIsVoting(false), 2000);
   };
 
   const getStatusColor = (status: string) => {
@@ -144,7 +195,7 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
       <div className="flex min-h-screen from-gray-50 to-gray-100">
         {/* Sidebar */}
         <Sidebar />
-        
+
         {/* Main Content Area */}
         <div className="flex-1 lg:ml-64">
           <div className="">
@@ -154,7 +205,7 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                 <CardContent className="p-6 md:p-8">
                   <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
                     {/* Left Side - Hero Image */}
-                    <div className="lg:w-2/5">
+                    {/* <div className="lg:w-2/5">
                       <div className="sticky top-8">
                         <div className="relative">
                           <img
@@ -167,10 +218,10 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                           >
                             {getStatusText(campaign.status)}
                           </Badge>
-                        </div>
+                        </div> */}
 
-                        {/* Quick Stats on Mobile */}
-                        <div className="lg:hidden mt-6 grid grid-cols-3 gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    {/* Quick Stats on Mobile */}
+                    {/* <div className="lg:hidden mt-6 grid grid-cols-3 gap-4 p-4 bg-white rounded-xl shadow-sm">
                           <div className="text-center">
                             <div className="text-2xl font-bold text-gray-900">${currentAmount.toFixed(2)}</div>
                             <div className="text-xs text-gray-500">Raised</div>
@@ -185,13 +236,13 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Right Side - Content */}
                     <div className="lg:w-3/5 space-y-6">
                       {/* Title and Creator */}
                       <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{campaign.title}</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{campaignOriginal?.title}</h1>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8 md:h-10 md:w-10">
                             <AvatarImage src={campaign.creator.avatar} />
@@ -200,187 +251,196 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <span className="text-base md:text-lg text-gray-700">by {campaign.creator.name}</span>
-                            <Badge variant="secondary" className="ml-2 md:ml-3 text-xs md:text-sm">
-                              {campaign.category}
-                            </Badge>
+                            <span className="text-base md:text-lg text-gray-700">by {campaignOriginal?.sponsor?.toBase58().slice(0, 4) + '...' + campaignOriginal?.sponsor?.toBase58().slice(-4)}</span>
+
                           </div>
                         </div>
                       </div>
 
                       {/* Description */}
                       <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-                        {campaign.description}
+                        {campaignOriginal?.description}
                       </p>
 
-                      {/* Main Notes */}
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Main Notes</h3>
-                        <div className="flex flex-wrap gap-2 md:gap-3">
-                          {['Fresh Spicy', 'Amber', 'Citrus', 'Aromatic', 'Musty', 'Woody', 'Lavender', 'Herbal', 'Warm Spicy'].map((note) => (
-                            <Badge key={note} variant="outline" className="text-xs md:text-sm py-1 md:py-2 px-3 md:px-4">
-                              {note}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
 
                       {/* Stats Grid */}
-                      <div className="hidden lg:grid grid-cols-4 gap-4 md:gap-6 p-4 md:p-6 bg-white rounded-xl shadow-sm">
-                        <div className="text-center">
-                          <div className="text-2xl md:text-3xl font-bold text-gray-900">${currentAmount.toFixed(2)}</div>
-                          <div className="text-xs md:text-sm text-gray-500">Raised</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl md:text-3xl font-bold text-gray-900">{campaign.backers}</div>
-                          <div className="text-xs md:text-sm text-gray-500">Backers</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl md:text-3xl font-bold text-gray-900">{campaign.daysLeft}</div>
-                          <div className="text-xs md:text-sm text-gray-500">Days Left</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl md:text-3xl font-bold text-gray-900">{votes}</div>
-                          <div className="text-xs md:text-sm text-gray-500">Votes</div>
-                        </div>
-                      </div>
 
-                      {/* Contributors */}
-                      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contributors</h3>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 md:gap-4">
-                            <div className="flex -space-x-2 md:-space-x-3">
-                              {visibleContributors.map((contributor, index) => (
-                                <Tooltip key={contributor.id}>
-                                  <TooltipTrigger asChild>
-                                    <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 md:border-4 border-white shadow-md">
-                                      <AvatarImage src={contributor.avatar} />
-                                      <AvatarFallback className="text-xs md:text-sm font-medium">
-                                        {contributor.name.split(' ').map(n => n[0]).join('')}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-semibold">{contributor.name}</p>
-                                    <p className="text-green-600 font-medium">${contributor.amount}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              ))}
-                              {remainingContributors > 0 && (
-                                <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 md:border-4 border-white bg-gray-100 shadow-md">
-                                  <AvatarFallback className="text-xs md:text-sm font-medium bg-gray-200">
-                                    +{remainingContributors}
-                                  </AvatarFallback>
-                                </Avatar>
-                              )}
-                            </div>
-                            <span className="text-base md:text-lg text-gray-700 font-medium">
-                              {campaign.contributors.length} contributors
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Progress Section */}
-                      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="text-lg md:text-xl font-semibold">${currentAmount.toFixed(2)} raised</span>
-                          <span className="text-base md:text-lg text-gray-600">Goal: ${campaign.goalAmount}</span>
-                        </div>
-                        <Progress value={progressPercentage} className="h-2 md:h-3" />
-                        <div className="text-right mt-2">
-                          <span className="text-sm text-gray-500">
-                            {progressPercentage.toFixed(1)}% complete
-                          </span>
-                        </div>
-                      </div>
 
                       {/* Milestone Bar */}
                       <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">Campaign Milestones</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">
+                          Milestone {numberForOnGoingMilestones} </h3>
                         <div className="relative pt-6 md:pt-8">
                           <div className="absolute top-6 md:top-8 left-0 right-0 h-2 bg-gray-200 rounded-full">
-                            <div 
+                            <div
                               className="h-2 bg-green-500 rounded-full transition-all duration-500 ease-out"
-                              style={{ width: `${progressPercentage}%` }}
+                              style={{ width: `${progressPercentageForMilestoneBar}%` }}
                             />
                           </div>
                           <div className="relative flex justify-between">
-                            {campaign.milestones.map((milestone, index) => (
+                            {campaignOriginal?.milestones?.map((milestone, index) => (
                               <Tooltip key={index}>
                                 <TooltipTrigger asChild>
-                                  <button 
+                                  <button
                                     className="flex flex-col items-center -mt-3 md:-mt-4 cursor-pointer hover:scale-110 transition-transform group"
                                     onClick={() => {
-                                      toast.info(milestone.description, {
-                                        description: `Reward: ${milestone.reward}`,
-                                      });
+                                      // toast.info(milestone.description as string, {
+                                      //   description: `Reward: ${milestone.reward as string}`,
+                                      // });
                                     }}
                                   >
-                                    <div className={`p-1 md:p-2 rounded-full shadow-lg ${
-                                      milestone.unlocked 
-                                        ? 'bg-green-500 text-white' 
-                                        : 'bg-gray-300 text-gray-600'
-                                    } group-hover:shadow-xl transition-shadow`}>
-                                      {milestone.unlocked ? (
+                                    <div className={`p-1 md:p-2 rounded-full shadow-lg ${milestone.status.completed
+                                      ? 'bg-green-500 text-white'
+                                      : 'bg-gray-300 text-gray-600'
+                                      } group-hover:shadow-xl transition-shadow`}>
+                                      {milestone.status.completed ? (
                                         <Unlock className="h-4 w-4 md:h-5 md:w-5" />
                                       ) : (
                                         <Lock className="h-4 w-4 md:h-5 md:w-5" />
                                       )}
                                     </div>
                                     <span className="text-xs md:text-sm font-medium mt-1 md:mt-2">
-                                      ${milestone.amount}
+                                      ${milestone.amount.toString()}
                                     </span>
                                     <span className="text-xs text-gray-500 mt-0.5 md:mt-1">
-                                      {milestone.label}
+                                      {milestone.order + 1}
                                     </span>
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-xs">
-                                  <div className="text-center">
-                                    <p className="font-semibold text-sm md:text-base">{milestone.description}</p>
-                                    <p className="text-green-600 font-medium mt-1">{milestone.reward}</p>
-                                    <p className={`text-xs mt-2 font-medium ${
-                                      milestone.unlocked ? 'text-green-600' : 'text-gray-500'
-                                    }`}>
+                                  {/* <div className="text-center">
+                                    <p className="font-semibold text-sm md:text-base">{milestone.description || 'No description'}</p>
+                                    <p className="text-green-600 font-medium mt-1">{milestone.reward as string || 'No reward'}</p>
+                                    <p className={`text-xs mt-2 font-medium ${milestone.status.completed ? 'text-green-600' : 'text-gray-500'
+                                      }`}>
                                       {milestone.unlocked ? '✓ Unlocked!' : '🔒 Locked'}
                                     </p>
-                                  </div>
+                                  </div> */}
                                 </TooltipContent>
                               </Tooltip>
                             ))}
                           </div>
                         </div>
-                      </div>
+                        {/* Stats Grid */}
 
-                      {/* Action Buttons */}
-                      <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
-                        <Button 
+                        <div className="flex items-center justify-between gap-2 w-full p-4 ">
+                          <div className="flex items-center justify-center gap-8">
+                            <div className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center justify-center gap-2"><span><ArrowBigUp /></span>{onGoingMilestone?.totalAgreedVotes.toString()}</div>
+                            <div className="text-xs md:text-sm text-gray-500 flex items-center justify-center gap-2"><span><ArrowBigDown /></span>{onGoingMilestone?.totalDisagreedVotes.toString()}</div>
+                          </div>
+                          <div className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center justify-center gap-2"><span className='text-gray-500 text-sm md:text-base'>Total Votes: </span>{onGoingMilestone?.totalVotes.toString()}</div>
+                        </div>
+
+
+                        {/* Action Buttons */}
+                        {/* <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4 md:pt-6">
+                        <Button
                           onClick={() => setIsDonateDialogOpen(true)}
                           className="flex-1 bg-green-600 hover:bg-green-700 text-white text-base md:text-lg py-4 md:py-6 h-auto font-semibold"
                           size="lg"
                         >
                           Support This Project
                         </Button>
-                        <Button 
+                        <Button
                           onClick={handleVote}
                           disabled={isVoting}
                           variant="outline"
-                          className={`flex items-center gap-2 md:gap-3 py-4 md:py-6 h-auto text-base md:text-lg transition-all ${
-                            isVoting ? 'animate-pulse' : ''
-                          }`}
+                          className={`flex items-center gap-2 md:gap-3 py-4 md:py-6 h-auto text-base md:text-lg transition-all ${isVoting ? 'animate-pulse' : ''
+                            }`}
                           size="lg"
                         >
                           <Heart className={`h-5 w-5 md:h-6 md:w-6 ${isVoting ? 'fill-red-500 text-red-500' : ''}`} />
                           <span>Vote ({votes})</span>
                         </Button>
+                      </div> */}
+
+                        <div className="flex items-center justify-end gap-2 pt-2 w-full">
+                          <button
+
+                            className=" bg-lime-500 w-1/2 hover:bg-lime-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-center flex items-center justify-center gap-2"
+                            onClick={() => handleVote(true)}
+                            
+                          >
+                            Upvote
+                            <ArrowBigUp className="w-4 h-4 " />
+                          </button>
+                          <button
+
+                            className="px-4 py-2 border w-1/2 border-gray-300 hover:bg-gray-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                            onClick={() => handleVote(false)}
+                          >
+                            Downvote
+                            <ArrowBigDown className="w-4 h-4 " />
+                          </button>
+                        </div>
+
                       </div>
+
+
                     </div>
                   </div>
+
+                  {/* Progress Bar */}
+                  <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-lg md:text-xl font-semibold">${donatedAmount} raised</span>
+                      <span className="text-base md:text-lg text-gray-600">Goal: ${campaignOriginal?.totalAmount.toString()}</span>
+                    </div>
+                    <Progress value={progressPercentage < 50 ? 0 : progressPercentage} className="h-2 md:h-3" />
+                    <div className="text-right mt-2">
+                      <span className="text-sm text-gray-500">
+                        {progressPercentage.toFixed(1)}% complete
+                      </span>
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
             </div>
+
+
+
+            {/* Contributors */}
+            {/* <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contributors</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="flex -space-x-2 md:-space-x-3">
+                    {visibleContributors.map((contributor, index) => (
+                      <Tooltip key={contributor.id}>
+                        <TooltipTrigger asChild>
+                          <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 md:border-4 border-white shadow-md">
+                            <AvatarImage src={contributor.avatar} />
+                            <AvatarFallback className="text-xs md:text-sm font-medium">
+                              {contributor.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">{contributor.name}</p>
+                          <p className="text-green-600 font-medium">${contributor.amount}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                    {remainingContributors > 0 && (
+                      <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 md:border-4 border-white bg-gray-100 shadow-md">
+                        <AvatarFallback className="text-xs md:text-sm font-medium bg-gray-200">
+                          +{remainingContributors}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                  <span className="text-base md:text-lg text-gray-700 font-medium">
+                    {campaign.contributors.length} contributors
+                  </span>
+                </div>
+              </div>
+            </div> */}
+
+            {/* Progress Section */}
+
+
+
 
             {/* Donation Dialog */}
             <Dialog open={isDonateDialogOpen} onOpenChange={setIsDonateDialogOpen}>
@@ -415,15 +475,15 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                   </div>
                 </div>
                 <DialogFooter className="gap-2 md:gap-3 sm:gap-0">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsDonateDialogOpen(false)}
                     className="flex-1 py-2 md:py-3 text-base md:text-lg"
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    onClick={handleDonate} 
+                  <Button
+                    onClick={handleDonate}
                     disabled={!donationAmount || parseFloat(donationAmount) <= 0}
                     className="flex-1 py-2 md:py-3 text-base md:text-lg bg-green-600 hover:bg-green-700"
                   >

@@ -4,6 +4,10 @@ use anchor_lang::prelude::*;
 pub struct Campaign {
     pub id: u64,
     pub sponsor: Pubkey,
+    #[max_len(32)]
+    pub title: String,
+    #[max_len(256)]
+    pub description: String,
     pub total_amount: u64,
     pub beneficiary: Pubkey,
     #[max_len(10)] // max 10 milestones

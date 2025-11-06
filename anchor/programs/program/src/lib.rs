@@ -20,8 +20,8 @@ pub mod basic {
         Ok(())
     }
 
-    pub fn create_campaign(ctx: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey) -> Result<()> {
-        handlers::create_campaign(ctx, id, total_amount, milestones, beneficiary)?;
+    pub fn create_campaign(ctx: Context<CreateCampaign>, id: u64, total_amount: u64, milestones: Vec<Milestone>, beneficiary: Pubkey, title: String, description: String) -> Result<()> {
+        handlers::create_campaign(ctx, id, total_amount, milestones, beneficiary, title, description)?;
         Ok(())
     }
 

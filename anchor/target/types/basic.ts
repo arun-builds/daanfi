@@ -110,6 +110,14 @@ export type Basic = {
         {
           "name": "beneficiary",
           "type": "pubkey"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
         }
       ]
     },
@@ -577,6 +585,14 @@ export type Basic = {
           {
             "name": "sponsor",
             "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
           },
           {
             "name": "totalAmount",
