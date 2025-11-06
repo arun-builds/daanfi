@@ -7,7 +7,7 @@ interface LandingPageCardLeftProps {
   height?: number;
 }
 
-export default function LandingPageCardLeft({ 
+export default function LandingPageCardRight({ 
   width, 
   height 
 }: LandingPageCardLeftProps) {

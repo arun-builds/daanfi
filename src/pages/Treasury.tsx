@@ -21,6 +21,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import Sidebar from "@/components/Sidebar";
 
 export default function TreasuryDashboard() {
   const chartData = [
@@ -62,87 +63,7 @@ export default function TreasuryDashboard() {
   return (
     <div className="min-h-screen  ">
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-lime-200 p-6">
-        <div className="flex items-center gap-3 mb-8">
-          <Package className="w-8 h-8 text-lime-600" />
-          <span className="font-bold text-xl text-gray-800">TREASURYIAX</span>
-        </div>
-
-        <nav className="space-y-2">
-          <Button
-            variant="ghost"
-            className="w-full justify-start bg-lime-100 text-lime-900 hover:bg-lime-200"
-          >
-            <Landmark className="mr-3 h-5 w-5" />
-            Treasury
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <Building2 className="mr-3 h-5 w-5" />
-            Checking Account
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <Wallet className="mr-3 h-5 w-5" />
-            Custodial Wallet
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <TrendingUp className="mr-3 h-5 w-5" />
-            Trade
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <CreditCard className="mr-3 h-5 w-5" />
-            Cards
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <Users className="mr-3 h-5 w-5" />
-            Contacts
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <FileText className="mr-3 h-5 w-5" />
-            Statements
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-lime-50"
-          >
-            <Settings className="mr-3 h-5 w-5" />
-            Settings
-          </Button>
-        </nav>
-
-        {/* User Profile */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="flex items-center gap-3 p-3 hover:bg-lime-50 rounded-lg cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-br from-lime-400 to-green-500 rounded-full flex items-center justify-center relative">
-              <span className="text-white font-semibold text-sm">TB</span>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold text-sm text-gray-800">
-                Tokyo Bam
-              </div>
-              <div className="text-xs text-gray-500">Metaverse, Inc.</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Sidebar/>
 
       {/* Main Content */}
       <div className="ml-64 p-8">

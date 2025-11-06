@@ -8,6 +8,12 @@ import { SolanaAuthButton } from './components/auth/SolanaAuth';
 import { User } from './components/user/User';
 import LandingPage from './pages/LandingPage';
 import TreasuryDashboard from './pages/Treasury';
+import DonationCard from './components/DonationCard';
+import Campaigns from './pages/CampaignsPage';
+import CampaignsPage from './pages/CampaignsPage';
+import ProfilePage from './pages/ProfilePage';
+import CampaignPage from './pages/CampaignPage';
+import ContentPage from './pages/ContentPage';
 
 // const links = [
 //   //
@@ -50,9 +56,13 @@ return (
     <Route path="/donate" element={<Donate />} />
     <Route path="/" element={<LandingPage  />} />
     <Route path="/treasury" element={<TreasuryDashboard  />} />
-    <Route path="/campaigns" element={<div>Campaigns</div>} />
+    <Route path="/campaigns" element={<CampaignPage/>} />
     <Route path="/auth" element={<SolanaAuthButton />} />
+    <Route path="/content" element={<ContentPage/>} />
     <Route path="/user" element={<User />} />
+    <Route path="/camp" element={<CampaignsPage />} />
+    <Route path="/profile" element={<ProfilePage />} />
+
   </Routes>
   {/* </AppLayout> */}
   </AppProviders>
