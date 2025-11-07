@@ -58,6 +58,7 @@ return (
     <Route path="/" element={<LandingPage  />} />
     <Route path="/dashboard" element={<TreasuryDashboard  />} />
     <Route path="/campaigns" element={<CampaignPage/>} />
+    {/* <Route path="/campaigns" element={<Campaigns />} /> */}
     <Route path="/auth" element={<SolanaAuthButton />} />
     <Route path="/campaign/:sponsor/:id" element={<ContentPage/>} />
 

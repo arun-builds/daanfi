@@ -10,7 +10,7 @@ import { useAnchorProvider } from '@/components/solana/use-anchor-provider.tsx'
 import BN from 'bn.js' // Assuming BN is needed for campaign/donation amounts
 
 
-export function useCampaigns({ beneficiary, id, sponsor }: { beneficiary: PublicKey, id: BN, sponsor: PublicKey }) {
+export function useCampaigns({  id, sponsor }: { beneficiary: PublicKey, id: BN, sponsor: PublicKey }) {
   const { connection } = useConnection()
   const { cluster } = useCluster()
   const wallet = useWallet(); // Get wallet for PublicKey access
@@ -22,7 +22,7 @@ export function useCampaigns({ beneficiary, id, sponsor }: { beneficiary: Public
 
   const [config, configBump] = PublicKey.findProgramAddressSync([Buffer.from("config")], program.programId)
 
-  const pdaForCampaign = (sp: PublicKey) =>
+  const pdaForCampaign = (sp: PublicKey, id: BN) =>
     PublicKey.findProgramAddressSync(
       [Buffer.from('campaign'), config.toBuffer(), sp.toBuffer(), id.toArrayLike(Buffer, 'le', 8)],
       program.programId
@@ -43,11 +43,31 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
   const title = 'Test Campaign'
   const description = 'This is a test campaign'
 
-  const milestones = [
-    { id: new BN(1), amount: new BN(2000), order: 0, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
-    { id: new BN(2), amount: new BN(2000), order: 1, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
-    { id: new BN(3), amount: new BN(2000), order: 2, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
-  ]
+    // const milestones = [
+    //   { id: new BN(1), amount: new BN(2000), order: 0, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
+    //   { id: new BN(2), amount: new BN(2000), order: 1, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
+    //   { id: new BN(3), amount: new BN(2000), order: 2, totalVotes: new BN(0), totalAgreedVotes: new BN(0), totalDisagreedVotes: new BN(0), status: { ongoing: {} } },
+    // ]
+
+    const formMilestones = (totalAmount: BN) => {
+      const total = totalAmount.toNumber();
+      const base = Math.floor(total / 3);
+      const remainder = total - base * 2; // ensures total == sum of 3
+    
+      const amounts = [base, base, remainder]; // last milestone gets the remainder
+
+      console.log(amounts);
+    
+      return amounts.map((amt, index) => ({
+        id: new BN(index + 1),
+        amount: new BN(amt),
+        order: index,
+        totalVotes: new BN(0),
+        totalAgreedVotes: new BN(0),
+        totalDisagreedVotes: new BN(0),
+        status: index === 0 ? { ongoing: {} } : { pending: {} },
+      }));
+    };
 
 
   const getCampaigns = useQuery({
@@ -74,7 +94,7 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
       //     program.programId
       // );
 
-      const campaignPda = pdaForCampaign(sponsor);
+      const campaignPda = pdaForCampaign(sponsor, id);
       try {
         return await program.account.campaign.fetch(campaignPda);
       } catch (e: any) {
@@ -104,14 +124,20 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
   const createCampaign = useMutation({
 
     mutationKey: ['create-campaign', { cluster }],
-    mutationFn: () => program.methods.createCampaign(id, totalAmount, milestones, beneficiary, title, description).accounts({
-      sponsor: wallet.publicKey as PublicKey,
-    }).rpc(),
+    mutationFn: ({ title, description, totalAmount, beneficiary }: { title: string, description: string, totalAmount: BN, beneficiary: PublicKey }) =>{
+      const milestones = formMilestones(totalAmount);
+      const id = new BN(Math.floor(Math.random() * 1000000));
+      return program.methods.createCampaign(id, totalAmount, milestones, beneficiary, title, description).accounts({
+        sponsor: wallet.publicKey as PublicKey,
+      }).rpc();
+    },
     onSuccess: () => {
+      console.log("campaign created successfully");
       queryClient.invalidateQueries({ queryKey: ['campaigns', { cluster }] })
     },
     onError: (error) => {
       toast.error(error.message)
+      console.log("campaign creation failed",error);
     },
   })
 
@@ -170,7 +196,7 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
       ],
       queryFn: async () => {
         if (!voter) throw new Error('Wallet not connected')
-        const campaignKey =  pdaForCampaign(sponsor)
+        const campaignKey =  pdaForCampaign(sponsor, id)
         const voteReceiptPda = PublicKey.findProgramAddressSync(
           [
             Buffer.from('vote_reciept'),
@@ -199,12 +225,45 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
     })
   }
 
+  const completeMilestone = useMutation({
+
+    mutationKey: ['complete-milestone', { cluster }],
+    mutationFn: async ({ milestoneIndex, id, sponsor, beneficiary }: { milestoneIndex: number, id: BN, sponsor: PublicKey, beneficiary: PublicKey }) => {
+      const campaignPda = pdaForCampaign(sponsor, id);
+      console.log("campaignPda", campaignPda.toBase58());
+      const [treasuryPda, treasuryBump] = PublicKey.findProgramAddressSync(
+        [Buffer.from("treasury"), config.toBuffer()],
+        program.programId
+      );
+      console.log("beneficiary", beneficiary.toBase58());
+      
+      return program.methods.completeMilestone(milestoneIndex).accountsStrict({
+        sponsor: sponsor,
+        beneficiary: beneficiary,
+        campaign: campaignPda,
+        config: config,
+        treasury: treasuryPda,
+        systemProgram: SystemProgram.programId,
+      }).rpc();
+    },onSuccess: () => {
+      console.log("milestone completed successfully");
+      toast.success('Milestone completed successfully');
+      queryClient.invalidateQueries({ queryKey: ['campaign', { cluster, id: idStr }] });
+      queryClient.invalidateQueries({ queryKey: ['campaigns', { cluster }] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.log("milestone completion failed",error);
+    },
+    
+  });
 
   return {
-    getCampaigns,
     createCampaign,
-    getSingleCampaign,
     recordVote,
     useVoteReceipt,
+    completeMilestone,
+    getCampaigns,
+    getSingleCampaign,
   }
 }

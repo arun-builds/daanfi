@@ -98,7 +98,7 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
     return <div>Invalid campaign URL</div>;
   }
 
-  const { getSingleCampaign, recordVote } = useCampaigns({
+  const { getSingleCampaign, recordVote, completeMilestone } = useCampaigns({
     beneficiary: new PublicKey('4rAvATEgWMVGjrxiF1AiY6qn4SCCEg92EgURySVfxcP2'),
     id: new BN(Number(id)),
     sponsor: new PublicKey(sponsor),
@@ -113,15 +113,22 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
   if (error) {
     return <div>Error loading campaign: {error.message}</div>;
   }
-
+const isAdmin = publicKey?.toBase58() === campaignOriginal?.sponsor?.toBase58();
   const totalMilestones = campaignOriginal?.milestones?.length || 0;
+  console.log("totalMilestones", totalMilestones);
   const completedMilestones = campaignOriginal?.milestones?.filter(milestone => milestone.status.completed).length || 0;
+  console.log("completedMilestones", completedMilestones);
   const onGoingMilestoneIndex = campaignOriginal?.milestones?.findIndex(milestone => milestone.status.ongoing) || 0;
+  console.log("onGoingMilestoneIndex", onGoingMilestoneIndex);
   const onGoingMilestone = campaignOriginal?.milestones?.[onGoingMilestoneIndex];
+  console.log("onGoingMilestone", onGoingMilestone);
   const numberForOnGoingMilestones = completedMilestones + 1;
+  console.log("numberForOnGoingMilestones", numberForOnGoingMilestones);
   const progressPercentage = completedMilestones / totalMilestones * 100;
-
-  let progressPercentageForMilestoneBar = 1 / totalMilestones * 100;
+  console.log("progressPercentage", progressPercentage);
+  
+  let progressPercentageForMilestoneBar = completedMilestones / totalMilestones * 100;
+  console.log("progressPercentageForMilestoneBar", progressPercentageForMilestoneBar);
   if (progressPercentageForMilestoneBar > 0 && progressPercentageForMilestoneBar < 50) {
     progressPercentageForMilestoneBar = 5;
   } else if (progressPercentageForMilestoneBar > 50 && progressPercentageForMilestoneBar < 100) {
@@ -154,6 +161,21 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
         onError: (e: any) => toast.error(e?.message ?? "Failed to record vote", { id: t }),
       }
     );
+  };
+
+  const handleCompleteMilestone = (beneficiary: PublicKey) => {
+    if (!publicKey) {
+      toast.error("Connect wallet to complete milestone");
+      return;
+    }
+    if (!onGoingMilestone?.status.ongoing) {
+      toast.error("This milestone is not open for completion");
+      return;
+    }
+    completeMilestone.mutate({ milestoneIndex: onGoingMilestoneIndex, id: new BN(Number(id)), sponsor: new PublicKey(sponsor), beneficiary: beneficiary }, {
+      onSuccess: () => toast.success("Milestone completed"),
+      onError: (e: any) => toast.error(e?.message ?? "Failed to complete milestone"),
+    });
   };
 
   const handleDonate = () => {
@@ -204,44 +226,14 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
               <Card className="w-full shadow-2xl border-0">
                 <CardContent className="p-6 md:p-8">
                   <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-                    {/* Left Side - Hero Image */}
-                    {/* <div className="lg:w-2/5">
-                      <div className="sticky top-8">
-                        <div className="relative">
-                          <img
-                            src="/api/placeholder/600/700"
-                            alt={campaign.title}
-                            className="w-full h-80 md:h-96 lg:h-[500px] object-cover rounded-2xl shadow-xl"
-                          />
-                          <Badge 
-                            className={`absolute top-3 right-3 md:top-4 md:right-4 ${getStatusColor(campaign.status)} text-white text-sm py-1 px-3`}
-                          >
-                            {getStatusText(campaign.status)}
-                          </Badge>
-                        </div> */}
-
-                    {/* Quick Stats on Mobile */}
-                    {/* <div className="lg:hidden mt-6 grid grid-cols-3 gap-4 p-4 bg-white rounded-xl shadow-sm">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-900">${currentAmount.toFixed(2)}</div>
-                            <div className="text-xs text-gray-500">Raised</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-900">{progressPercentage.toFixed(0)}%</div>
-                            <div className="text-xs text-gray-500">Funded</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-900">{campaign.daysLeft}</div>
-                            <div className="text-xs text-gray-500">Days Left</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div> */}
+                   
+                   
 
                     {/* Right Side - Content */}
                     <div className="lg:w-3/5 space-y-6">
                       {/* Title and Creator */}
-                      <div>
+                      <div  className='flex items-center justify-between'>
+                        <div>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{campaignOriginal?.title}</h1>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8 md:h-10 md:w-10">
@@ -255,6 +247,8 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
 
                           </div>
                         </div>
+                        </div>
+                        <Button disabled={progressPercentageForMilestoneBar === 100} onClick={() => handleCompleteMilestone(new PublicKey(campaignOriginal?.beneficiary?.toBase58() || ''))} className={`${isAdmin ? '' : 'hidden'}`}>Complete Milestone</Button>
                       </div>
 
                       {/* Description */}
@@ -269,7 +263,7 @@ const ContentPage: React.FC<CampaignProps> = ({ campaign = defaultCampaign }) =>
                       {/* Milestone Bar */}
                       <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">
-                          Milestone {numberForOnGoingMilestones} </h3>
+                           {numberForOnGoingMilestones > totalMilestones ? "Completed" : "Milestone " + numberForOnGoingMilestones} </h3>
                         <div className="relative pt-6 md:pt-8">
                           <div className="absolute top-6 md:top-8 left-0 right-0 h-2 bg-gray-200 rounded-full">
                             <div

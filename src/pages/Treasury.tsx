@@ -25,17 +25,60 @@ import {
 import Sidebar from "@/components/Sidebar";
 import { useDonate } from "@/components/donate/donate-data-access";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
+import BN from "bn.js";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function TreasuryDashboard() {
 
-  const{getTreasuryBalance} = useDonate()
+  const { getTreasuryBalance, donate } = useDonate()
   const [treasuryBalance, setTreasuryBalance] = useState(0)
+  const [donationSOL, setDonationSOL] = useState<string>('');
+  const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false)
+  const wallet = useWallet()
+  const publicKey = wallet.publicKey
 
   useEffect(() => {
     if (getTreasuryBalance.data) {
       setTreasuryBalance(getTreasuryBalance.data / LAMPORTS_PER_SOL)
     }
   }, [getTreasuryBalance.data])
+
+
+  const handleDonate = () => {
+    if (!publicKey) {
+      toast.error("Connect wallet to donate");
+      return;
+    }
+
+    const sol = parseFloat(donationSOL);
+    if (isNaN(sol) || sol <= 0) {
+      toast.error("Enter a valid donation amount in SOL");
+      return;
+    }
+
+    // Convert SOL → lamports safely
+    const lamports = Math.round(sol * LAMPORTS_PER_SOL);
+    const amount = new BN(lamports);
+
+    donate.mutate(
+      { amount },
+      {
+        onSuccess: () => {
+          toast.success("Donation successful");
+          setIsDonateDialogOpen(false);
+          setDonationSOL("");
+        },
+        onError: (error) => {
+          console.error("Failed to donate", error);
+          toast.error(error?.message ?? "Failed to donate");
+        },
+      }
+    );
+  };
+
+
   const chartData = [
     { month: "Jan", totalIn: 400, totalOut: 300 },
     { month: "Feb", totalIn: 500, totalOut: 400 },
@@ -75,15 +118,16 @@ export default function TreasuryDashboard() {
   return (
     <div className="min-h-screen  ">
       {/* Sidebar */}
-      <Sidebar/>
+      <Sidebar />
 
       {/* Main Content */}
       <div className="ml-64 p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold ">Treasury</h1>
-          <Button className="bg-lime-600 hover:bg-lime-700 text-white">
-            Manage Account
-            <Cog />
+
+          <Button onClick={() => setIsDonateDialogOpen(true)} className="bg-lime-600 hover:bg-lime-700 text-white px-6">
+            Donate
+
           </Button>
         </div>
 
@@ -96,7 +140,7 @@ export default function TreasuryDashboard() {
                   TOTAL BALANCE
                 </div>
                 <div className="text-5xl font-bold text-gray-900">
-                  ${treasuryBalance * 184.99}
+                  ${Number(treasuryBalance * 183).toFixed(2)}
                 </div>
               </div>
               <div>
@@ -107,7 +151,7 @@ export default function TreasuryDashboard() {
                   {treasuryBalance} SOL
                 </div>
               </div>
-            
+
             </div>
 
             {/* Balance Bar */}
@@ -271,11 +315,10 @@ export default function TreasuryDashboard() {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-10 h-10 ${
-                        index === 0
-                          ? "bg-gradient-to-br from-lime-400 to-green-500"
-                          : "bg-gray-800"
-                      } rounded-lg flex items-center justify-center text-white font-bold`}
+                      className={`w-10 h-10 ${index === 0
+                        ? "bg-gradient-to-br from-lime-400 to-green-500"
+                        : "bg-gray-800"
+                        } rounded-lg flex items-center justify-center text-white font-bold`}
                     >
                       {index === 0 ? "🌐" : "🍎"}
                     </div>
@@ -306,6 +349,32 @@ export default function TreasuryDashboard() {
             </CardContent>
           </Card>
         </div>
+        <Dialog open={isDonateDialogOpen} onOpenChange={setIsDonateDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Donate</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 md:space-y-6 py-4">
+              <div>
+                <label className="text-base md:text-lg font-medium">Donation Amount</label>
+              </div>
+              <div>
+                <input
+                  type="number"
+                  value={donationSOL}
+                  onChange={(e) => setDonationSOL(e.target.value)}
+                  placeholder="Enter amount in SOL (e.g. 0.1)"
+                  className="w-full p-3 md:p-4 text-base md:text-lg border-2 rounded-lg mt-2 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div>
+                <Button onClick={handleDonate} disabled={!donationSOL || donationSOL === '0'}>Donate</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

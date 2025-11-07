@@ -184,12 +184,7 @@ const CampaignPage = () => {
     console.log('Creating campaign with data:', formData);
     
     // If you have a mutation function, you would call it here:
-    // createCampaign.mutate({
-    //   title: formData.title,
-    //   description: formData.description,
-    //   totalAmount: new BN(formData.totalAmount),
-    //   beneficiary: new PublicKey(formData.beneficiary)
-    // });
+    createCampaign.mutate({ title: formData.title, description: formData.description, totalAmount: new BN(Number(formData.totalAmount)), beneficiary: new PublicKey(formData.beneficiary) });
 
     // Reset form and close dialog
     setFormData({
@@ -256,13 +251,14 @@ const CampaignPage = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentCampaigns.map((campaign, index) => (
+
                 <DonationCard
                   key={index}
                   image={MOCK_CAMPAIGNS[index % MOCK_CAMPAIGNS.length].image}
                   title={campaign.title}
                   description={campaign.description}
-                  raised={MOCK_CAMPAIGNS[index % MOCK_CAMPAIGNS.length].raised}
-                  goal={MOCK_CAMPAIGNS[index % MOCK_CAMPAIGNS.length].goal}
+                  raised={campaign.milestones.filter(milestone => milestone.status.completed).reduce((acc, milestone) => acc + milestone.amount.toNumber(), 0)}
+                  goal={campaign.totalAmount.toNumber()}
                   sponsor={campaign.sponsor}
                   campaignId={campaign.id}
                 />

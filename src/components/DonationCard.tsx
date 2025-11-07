@@ -69,7 +69,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
               {formatCurrency(raised)}
             </span>
             <span className="text-sm text-gray-600">
-              raised of {formatCurrency(goal)} goal
+               {formatCurrency(goal)} goal
             </span>
           </div>
           
