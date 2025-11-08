@@ -11,15 +11,14 @@ const LandingPage = () => {
   return (
     <div>
       <Navbar />
-      <LandingPageFirstSection />
-      <LandingaPageSecondSection />
-      <LandingPageThirdSection />
-      <LandingPageFourthSection />
-      <LandingPageFifthSection />
-      <LandingPageFaq />
+      <LandingPageFirstSection id="home" />
+      <LandingaPageSecondSection id="about" />
+      <LandingPageThirdSection id="features" />
+      <LandingPageFourthSection id="how-it-works" />
+      <LandingPageFifthSection id="contact" />
+      <LandingPageFaq id="faq" />
       <Footer />
     </div>
   );
 };
-
 export default LandingPage;

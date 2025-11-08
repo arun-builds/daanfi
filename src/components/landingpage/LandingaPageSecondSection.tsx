@@ -2,7 +2,11 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Smile, Heart, Sun } from 'lucide-react';
 
-const LandingaPageSecondSection = () => {
+interface LandingPageSecondsectionProps {
+  id?: string;
+}
+
+export default function LandingaPageSecondSection({ id }: LandingPageSecondsectionProps) {
   const features = [
     {
       icon: Smile,
@@ -22,9 +26,10 @@ const LandingaPageSecondSection = () => {
   ];
 
   return (
-    <Card className="w-full max-w-[1200px] mx-auto bg-gradient-to-br from-lime-300 to-lime-400 p-12 rounded-3xl">
+    <section id={id}>
+        <Card className="w-full max-w-[1200px] mx-auto bg-lime-200 p-12 rounded-3xl">
       <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-16">
-        Fundraising on Pracima takes<br />just a few minutes
+        Fundraising on DaanFi takes<br />just a few minutes
       </h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -48,7 +53,7 @@ const LandingaPageSecondSection = () => {
         ))}
       </div>
     </Card>
+    </section>
   );
 };
 
-export default LandingaPageSecondSection;

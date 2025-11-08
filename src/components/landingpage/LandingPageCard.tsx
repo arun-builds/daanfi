@@ -7,7 +7,7 @@ interface LandingPageCardProps {
 }
 
 export default function LandingPageCard({ 
-  text = "Let them be heard",
+  text ,
   icon = (
     <svg
       width="48"

@@ -16,7 +16,7 @@ export default function Footer() {
                   <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
                 </svg>
               </div>
-              <span className="text-2xl font-bold">Pracima</span>
+              <span className="text-2xl font-bold">Daanfi</span>
             </div>
             <p className="text-sm opacity-90">Great futures are built with a small charity</p>
           </div>

@@ -1,36 +1,38 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import LandingPageCardLeft from './LandingPageCardLeft'; // Adjust import path as needed
+import React from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import LandingPageCardLeft from './LandingPageCardLeft' // Adjust import path as needed
 
-const LandingPageFifthSection = () => {
+interface LandingPageFifthsectionProps {
+  id?: string
+}
+
+export default function LandingPageFifthSection({ id }: LandingPageFifthsectionProps)  {
   const teamMembers = [
     {
-      name: "Antonio Roberto",
-      role: "Founder Practina"
+      name: 'Abhishek Singh',
+      role: 'Founder Practina',
     },
     {
-      name: "Patricia Angely", 
-      role: "Product Manager"
+      name: 'Arun Prajapati',
+      role: 'Product Manager',
     },
     {
-      name: "Sonia Ambaratna",
-      role: "Lead Marketing"
+      name: 'Kaushiki Mishra',
+      role: 'Lead Marketing',
     },
     {
-      name: "Yasmine Tano",
-      role: "Creative Designer"
-    }
-  ];
+      name: 'Mayank Bhardwaj',
+      role: 'Creative Designer',
+    },
+  ]
 
   return (
-    <section className="w-full py-16 px-4 md:px-8 bg-white">
+    <section id={id} className="w-full py-16 px-4 md:px-8 bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Meet our team
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Meet our team</h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             The world's largest social fundraising platform, optimized for your charity in a more easy way
           </p>
@@ -44,14 +46,16 @@ const LandingPageFifthSection = () => {
           {teamMembers.map((member, index) => (
             <LandingPageCardLeft
               key={index}
-              width={250}
+              width={270}
               height={300}
+              title={member.name}
+              description={member.role}
+              showDonateButton={false}
             />
           ))}
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default LandingPageFifthSection;

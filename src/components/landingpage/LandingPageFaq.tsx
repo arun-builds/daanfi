@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const LandingPageFaq = () => {
+const LandingPageFaq = (id:any) => {
   const faqItems = [
     {
       id: "1",
@@ -37,7 +37,7 @@ const LandingPageFaq = () => {
 
   return (
     <div className='flex justify-center items-center'> 
-    <section className="w-[1200px] rounded-2xl py-8 md:py-12 px-4 sm:px-6 h-[900px] bg-[#e8e4d9]">
+    <section id={id} className="w-[1200px] rounded-2xl py-8 md:py-12 px-4 sm:px-6 h-[900px] bg-[#e8e4d9]">
       <div className="max-w-2xl mx-auto bg-[#e8e4d9] rounded-3xl p-6 md:p-8 lg:p-8">
         {/* Header with decorative image */}
         <div className="text-center mb-8 md:mb-10">

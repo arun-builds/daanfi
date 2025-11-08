@@ -36,7 +36,7 @@ export default function TreasuryDashboard() {
   const { getTreasuryBalance, donate } = useDonate()
   const [treasuryBalance, setTreasuryBalance] = useState(0)
   
-  const [solusd, setSolusd] = useState(0)
+  const [curValue, setCurValue] = useState(0)
   const [allTransactions, setAllTransactions] = useState<any[]>([]);
   const [donationSOL, setDonationSOL] = useState<string>('');
   const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false)
@@ -82,6 +82,20 @@ export default function TreasuryDashboard() {
   //   }
   //   fetchTransactions()
   // }, [])
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://api.price2sheet.com/json/sol/usd');
+      console.log("inside log "+ typeof response.data.price);
+      setCurValue(response.data.price);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  fetchData();
+}, []);
 
   const handleDonate = () => {
     if (!publicKey) {
@@ -181,7 +195,7 @@ export default function TreasuryDashboard() {
                   TOTAL BALANCE
                 </div>
                 <div className="text-5xl font-bold text-gray-900">
-                  ${Number(treasuryBalance * solusd).toFixed(2)}
+                  ${Number(treasuryBalance * Number(`curValue`)).toFixed(2)}
                 </div>
               </div>
               <div>

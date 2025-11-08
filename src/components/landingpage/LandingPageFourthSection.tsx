@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
-const LandingPageFourthSection = () => {
+const LandingPageFourthSection = (id:any) => {
   const [count, setCount] = useState(120859);
 
   // Animate counter on mount
@@ -30,7 +30,8 @@ const LandingPageFourthSection = () => {
   };
 
   return (
-    <div className="relative w-full bg-white overflow-hidden font-sans">
+  <section id={id}>
+      <div className="relative w-full bg-white overflow-hidden font-sans">
       {/* Main Content Section */}
       <div className="relative flex flex-col items-center justify-center min-h-[500px] px-4 py-12">
         {/* Profile Images - Top Left */}
@@ -86,12 +87,7 @@ const LandingPageFourthSection = () => {
             people already joining
           </p>
 
-          <Button
-            size="lg"
-            className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 rounded-full text-base font-normal tracking-normal shadow-none transition-colors"
-          >
-            Yes, I want to join community
-          </Button>
+         
         </div>
       </div>
 
@@ -107,11 +103,11 @@ const LandingPageFourthSection = () => {
         </div>
 
         {/* Light Green Stripe */}
-        <div className="absolute inset-0 text-white bg-lime-400 origin-top-left -skew-y-3 translate-y-25">
+        <div className="absolute inset-0 text-white bg-lime-200 origin-top-left -skew-y-3 translate-y-25">
           <div className="flex items-center text-white justify-center h-full skew-y-3 -translate-y-16">
             <div className="scrolling-text-container text-white">
-              <div className="scrolling-text text-white">
-                <span className='text-white'>* let's help each other</span>
+              <div className="scrolling-text text-black font-bold">
+                <span >* let's help each other</span>
                 <span>let's help each other</span>
                 <span>let's help each other</span>
                 <span>let's help each other</span>
@@ -162,6 +158,7 @@ const LandingPageFourthSection = () => {
         }
       `}</style>
     </div>
+  </section>
   );
 };
 
