@@ -9,7 +9,7 @@ mod constants;
 use handlers::*;
 use states::Milestone;
 
-declare_id!("3ZZcUfMdaP6wZmBxbjFqJnFjtua4QwsuQov23hmoVW6L");
+declare_id!("FrqH4fpY2yGS2PT8ufEFcbbv9imZ1jd1qKTH9Fk6YGxB");
 
 #[program]
 pub mod basic {
@@ -39,4 +39,5 @@ pub mod basic {
         handlers::complete_milestone(ctx, milestone_index)?;
         Ok(())
     }
+    
 }

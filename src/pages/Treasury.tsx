@@ -29,22 +29,59 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import BN from "bn.js";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function TreasuryDashboard() {
 
   const { getTreasuryBalance, donate } = useDonate()
   const [treasuryBalance, setTreasuryBalance] = useState(0)
+  
+  const [solusd, setSolusd] = useState(0)
+  const [allTransactions, setAllTransactions] = useState<any[]>([]);
   const [donationSOL, setDonationSOL] = useState<string>('');
   const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false)
   const wallet = useWallet()
   const publicKey = wallet.publicKey
 
+  const lamportsToSol = (lamports: number) =>
+    (lamports / LAMPORTS_PER_SOL).toFixed(4);
+
+
+
+
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/transactions");
+      setAllTransactions(response.data)
+      console.log('response', response.data)
+      console.log('allTransactions', allTransactions)
+    } catch (error) {
+      console.error('Transaction fetching error:', error)
+    }
+  }
+
   useEffect(() => {
+
     if (getTreasuryBalance.data) {
       setTreasuryBalance(getTreasuryBalance.data / LAMPORTS_PER_SOL)
     }
+    fetchTransactions()
   }, [getTreasuryBalance.data])
 
+
+  // useEffect(() => {
+  //   const fetchTransactions = async () => {
+  //     const response = await axios.get('/api/transactions')
+
+  //     if (!response.data) {
+  //       throw new Error('Failed to fetch transactions')
+  //     }
+  //     console.log('response.data', response.data)
+  //     setAllTransactions(response.data)
+  //   }
+  //   fetchTransactions()
+  // }, [])
 
   const handleDonate = () => {
     if (!publicKey) {
@@ -67,6 +104,7 @@ export default function TreasuryDashboard() {
       { amount },
       {
         onSuccess: () => {
+          fetchTransactions()
           toast.success("Donation successful");
           setIsDonateDialogOpen(false);
           setDonationSOL("");
@@ -77,6 +115,8 @@ export default function TreasuryDashboard() {
         },
       }
     );
+    
+
   };
 
 
@@ -141,7 +181,7 @@ export default function TreasuryDashboard() {
                   TOTAL BALANCE
                 </div>
                 <div className="text-5xl font-bold text-gray-900">
-                  ${Number(treasuryBalance * 183).toFixed(2)}
+                  ${Number(treasuryBalance * solusd).toFixed(2)}
                 </div>
               </div>
               <div>

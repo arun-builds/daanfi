@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import nacl from 'tweetnacl'; 
 import bs58 from 'bs58';
 
-import { User, Nonce } from './db/schema';
+import { User, Nonce, Transaction } from './db/schema';
 import { requireAuth } from './middlewares/middleware';
 
 const NONCE_TTL_MS = 5 * 60 * 1000;
@@ -129,6 +129,47 @@ app.post('/api/auth/verify', async(req, res) => {
         return res.status(500).json({ message: "Server error during verification." });
     }
 })
+
+app.post('/api/transactions/create', async(req, res) => {
+    try {
+        const {
+            walletAddress,
+            amount,
+            transactionType,
+            transactionSignature,
+          } = req.body;
+
+        console.log('req.body', req.body)
+        if (!walletAddress || !amount || !transactionType || !transactionSignature) {
+            return res.status(400).json({ message: "Missing required transaction fields." });
+        }
+        const transaction = await Transaction.create({ walletAddress, amount, transactionType, transactionSignature });
+        console.log('transaction', transaction)
+        if (!transaction) {
+            return res.status(400).json({ message: "Error creating transaction." });
+        }
+        res.status(200).json(transaction);
+    } catch (error) {
+        console.error('Transaction creation error:', error);
+        return res.status(500).json({ message: "Server error during transaction creation." });
+    }
+});
+
+app.get('/api/transactions', async(req, res) => {
+    try {
+        const transactions = await Transaction.find();
+        console.log('transactions', transactions)
+        res.status(200).json(transactions);
+        if (!transactions) {
+            return res.status(400).json({ message: "No transactions found." });
+        }
+        
+    } catch (error) {
+        console.error('Transaction fetching error:', error);
+        return res.status(500).json({ message: "Server error during transaction fetching." });
+    }
+});
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');

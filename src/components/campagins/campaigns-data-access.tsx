@@ -8,6 +8,7 @@ import { useTransactionToast } from '@/components/use-transaction-toast'
 import { toast } from 'sonner'
 import { useAnchorProvider } from '@/components/solana/use-anchor-provider.tsx'
 import BN from 'bn.js' // Assuming BN is needed for campaign/donation amounts
+import axios from 'axios'
 
 
 export function useCampaigns({  id, sponsor }: { beneficiary: PublicKey, id: BN, sponsor: PublicKey }) {
@@ -245,7 +246,9 @@ const sponsorStr = useMemo(() => (sponsor ? sponsor.toBase58() : ''), [sponsor])
         treasury: treasuryPda,
         systemProgram: SystemProgram.programId,
       }).rpc();
-    },onSuccess: () => {
+    },
+    onSuccess: async () => {
+      
       console.log("milestone completed successfully");
       toast.success('Milestone completed successfully');
       queryClient.invalidateQueries({ queryKey: ['campaign', { cluster, id: idStr }] });

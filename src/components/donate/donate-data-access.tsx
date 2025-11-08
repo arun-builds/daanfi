@@ -8,6 +8,7 @@ import { useTransactionToast } from '@/components/use-transaction-toast'
 import { toast } from 'sonner'
 import { useAnchorProvider } from '@/components/solana/use-anchor-provider.tsx'
 import BN from 'bn.js' // Assuming BN is needed for campaign/donation amounts
+import axios from 'axios'
 
 
 export function useDonate() {
@@ -65,11 +66,31 @@ export function useDonate() {
             donor: wallet.publicKey as PublicKey,
         })
         .rpc(),
-    onSuccess: (signature) => {
+
+
+    onSuccess: async (signature, {amount}: {amount: BN}) => {
+      try {
+        console.log("amount", amount.toString())
+     const response = await axios.post('http://localhost:3000/api/transactions/create', {
+      walletAddress: wallet.publicKey?.toBase58(),
+      amount: Number(amount.toString()),
+      transactionType: 'in',
+      transactionSignature: signature,
+     })
+     if (!response.data) {
+      throw new Error('Failed to create transaction')
+     }
+
+        
+      
       transactionToast(signature)
       toast.success('Donation successful!')
       queryClient.invalidateQueries({ queryKey: ['daanfi', 'treasury-balance'] })
-    },
+    } catch (error) {
+      toast.error('Failed to create transaction')
+      console.error('Transaction creation error:', error)
+    }
+  },
     onError: (error) => {
       toast.error('Failed to donate.')
       console.error('Donate Error:', error)

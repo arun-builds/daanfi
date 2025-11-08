@@ -15,8 +15,11 @@ const UserSchema = new mongoose.Schema({
 const TransactionSchema = new mongoose.Schema({
     walletAddress: { type: String, required: true },
     amount: { type: Number, required: true },
+    transactionType: { type: String, enum: ['in', 'out'], required: true },
+    transactionSignature: { type: String, required: true, unique: true },
     createdAt: { type: Date, default: Date.now },
 });
+
 
 const NonceSchema = new mongoose.Schema({
     // The wallet address requesting the authentication challenge

@@ -14,6 +14,7 @@ import { PublicKey } from '@solana/web3.js';
 import { useParams } from 'react-router';
 import BN from 'bn.js';
 import { useWallet } from '@solana/wallet-adapter-react';
+import axios from 'axios';
 
 // Types
 interface Contributor {
@@ -173,7 +174,23 @@ const isAdmin = publicKey?.toBase58() === campaignOriginal?.sponsor?.toBase58();
       return;
     }
     completeMilestone.mutate({ milestoneIndex: onGoingMilestoneIndex, id: new BN(Number(id)), sponsor: new PublicKey(sponsor), beneficiary: beneficiary }, {
-      onSuccess: () => toast.success("Milestone completed"),
+  
+      onSuccess: async (signature) => {toast.success("Milestone completed");
+        try {
+          const response = await axios.post('http://localhost:3000/api/transactions/create', {
+            walletAddress: publicKey?.toBase58(),
+            amount: Number(onGoingMilestone?.amount.toString()),
+            transactionType: 'out',
+            transactionSignature: signature,
+          })
+          if (!response.data) {
+            throw new Error('Failed to create transaction');
+          }
+          console.log('response', response.data);
+        } catch (error) {
+          console.error('Transaction creation error:', error);
+        }
+      },
       onError: (e: any) => toast.error(e?.message ?? "Failed to complete milestone"),
     });
   };
