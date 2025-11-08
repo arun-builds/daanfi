@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export const ProfileHeader = () => {
+export const ProfileHeader = ({walletAddress}: {walletAddress: string,}) => {
   const [copied, setCopied] = useState(false);
-  const walletAddress = "0xA2f8...92D4";
+  
   const ensName = "jatin.eth";
 
   const handleCopy = () => {

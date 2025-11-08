@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Target, Zap, Crown, Star, Award } from "lucide-react";
+import { BN } from "@coral-xyz/anchor";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const BadgeCard = ({
   icon: Icon,
@@ -55,7 +57,8 @@ const BadgeCard = ({
   );
 };
 
-export const AchievementBadges = () => {
+export const AchievementBadges = ({reputationScore, totalDonations}: {reputationScore: number, totalDonations:  BN}) => {
+  // const totalDonationsInSOL = totalDonations.div(LAMPORTS_PER_SOL).toNumber();
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -64,14 +67,14 @@ export const AchievementBadges = () => {
           <h2 className="text-3xl font-bold text-neutral-800 mb-1">Achievements</h2>
           <p className="text-neutral-600">28 / 50 Badges Unlocked</p>
         </div>
-        <div className="bg-lime-50 border border-lime-200 px-6 py-3 rounded-xl shadow-sm">
-          <p className="text-sm text-neutral-500">XP Progress</p>
-          <p className="text-2xl font-bold text-emerald-700">8,420 / 10,000</p>
+        <div className="bg-lime-50 border border-lime-200 px-6 py-3 rounded-xl shadow-sm flex flex-col items-center justify-center">
+          <p className="text-sm text-neutral-500">Reputation Score</p>
+          <p className="text-2xl font-bold text-emerald-700">{reputationScore} </p>
         </div>
       </div>
 
       {/* Level Progress */}
-      <Card className="bg-white/70 border border-lime-200 p-6 rounded-2xl">
+      {/* <Card className="bg-white/70 border border-lime-200 p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-neutral-700">Level 15</span>
           <span className="text-sm text-neutral-500">84% to Level 16</span>
@@ -82,7 +85,7 @@ export const AchievementBadges = () => {
             style={{ width: "84%" }}
           />
         </div>
-      </Card>
+      </Card> */}
 
       {/* Unlocked Badges */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

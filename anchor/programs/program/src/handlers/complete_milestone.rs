@@ -42,19 +42,19 @@ pub fn complete_milestone(context: Context<CompleteMilestone>, milestone_index: 
     require!(context.accounts.campaign.milestones[milestone_index as usize].status == Status::Ongoing, ErrorCode::MilestoneNotPending);
 
     
-    // {
+    {
         
-    //     let current_milestone = &mut context.accounts.campaign.milestones[milestone_index as usize];
+        let current_milestone = &mut context.accounts.campaign.milestones[milestone_index as usize];
 
         
-    //     require!(current_milestone.total_votes >= constants::MINIMUM_VOTING_THRESHOLD, ErrorCode::NotEnoughVotes);
-    //     current_milestone.status = Status::Completed;
+        require!(current_milestone.total_votes >= constants::MINIMUM_VOTING_THRESHOLD, ErrorCode::NotEnoughVotes);
+        current_milestone.status = Status::Completed;
         
-    // } 
+    } 
 
-    // let current_milestone = &mut context.accounts.campaign.milestones[milestone_index as usize];
-    // let threshold = current_milestone.total_votes.checked_div(2).ok_or(ErrorCode::MilestoneThresholdCalculationError)?;
-    // require!(current_milestone.total_agreed_votes >= threshold, ErrorCode::NotAboveThreshold);
+    let current_milestone = &mut context.accounts.campaign.milestones[milestone_index as usize];
+    let threshold = current_milestone.total_votes.checked_div(2).ok_or(ErrorCode::MilestoneThresholdCalculationError)?;
+    require!(current_milestone.total_agreed_votes >= threshold, ErrorCode::NotAboveThreshold);
 
     
     let amount_to_transfer = context.accounts.campaign.milestones[milestone_index as usize].amount;
