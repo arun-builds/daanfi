@@ -5,11 +5,16 @@ import { ArrowUpRight } from "lucide-react";
 interface LandingPageCardLeftProps {
   width?: number;
   height?: number;
+  title: string;
+  description: string;
 }
 
 export default function LandingPageCardLeft({ 
   width, 
-  height 
+  height,
+  title,
+  description 
+
 }: LandingPageCardLeftProps) {
   // Default dimensions
   const defaultWidth = 320;
@@ -65,15 +70,11 @@ export default function LandingPageCardLeft({
           <div className="relative z-10 p-6 pt-16">
             {/* Percentage */}
             <div className="mb-6">
-              <h1 className="text-7xl font-bold mb-3">65%</h1>
+              <h1 className="text-7xl font-bold mb-3">
+                {title}
+              </h1>
               <p className="text-sm leading-relaxed opacity-95">
-                17 Thousand People Died,
-                <br />
-                Thousands Injured, Houses
-                <br />
-                and Buildings Destroyed.
-                <br />
-                Turkey-Syria Grieves
+                {description}
               </p>
             </div>
 

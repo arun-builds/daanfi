@@ -21,7 +21,7 @@ export function getBasicProgramId(cluster: Cluster) {
     case 'devnet':
     case 'testnet':
       // This is the program ID for the Basic program on devnet and testnet.
-      return new PublicKey('3ZZcUfMdaP6wZmBxbjFqJnFjtua4QwsuQov23hmoVW6L')
+      return new PublicKey('FrqH4fpY2yGS2PT8ufEFcbbv9imZ1jd1qKTH9Fk6YGxB')
     case 'mainnet-beta':
     default:
       return BASIC_PROGRAM_ID

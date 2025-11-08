@@ -1,20 +1,24 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import LandingPageCardLeft from "./LandingPageCardLeft";
-import LandingPageCardRight from "./LandingPageCardRight";
-import LandingPageCard from "./LandingPageCard";
+import React from 'react'
+import { Button } from '@/components/ui/button'
+import LandingPageCardLeft from './LandingPageCardLeft'
+import LandingPageCardRight from './LandingPageCardRight'
+import LandingPageCard from './LandingPageCard'
+import { Navigate, useNavigate } from 'react-router'
 
 export default function LandingPageFirstSection() {
+  //@ts-ignore
+  const navigate = useNavigate()
   return (
     <div className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Lime Green Background Splash - More prominent */}
-      <div 
+      <div
         className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-[500px] h-[500px] rounded-full bg-lime-200/60 blur-[100px] z-0"
         style={{
-          background: 'radial-gradient(circle, rgba(190, 242, 100, 0.6) 0%, rgba(190, 242, 100, 0.3) 50%, rgba(190, 242, 100, 0.1) 100%)'
+          background:
+            'radial-gradient(circle, rgba(190, 242, 100, 0.6) 0%, rgba(190, 242, 100, 0.3) 50%, rgba(190, 242, 100, 0.1) 100%)',
         }}
       ></div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16">
@@ -34,6 +38,10 @@ export default function LandingPageFirstSection() {
             <Button
               size="lg"
               className="bg-black hover:bg-gray-800 text-white rounded-full px-10 py-6 text-base font-medium"
+              //@ts-ignore
+              onClick={() => {
+                navigate('/dashboard')
+              }}
             >
               Donate now
             </Button>
@@ -50,7 +58,17 @@ export default function LandingPageFirstSection() {
         <div className="flex gap-2">
           <div className="flex flex-col">
             <div>
-              <LandingPageCardLeft width={200} height={400}/>
+              <LandingPageCardLeft
+                width={200}
+                height={400}
+                title="40%
+"
+                description="Funds allocated to support
+employee medical emergencies,
+short-term financial aid,
+and mental-health assistance.
+"
+              />
             </div>
             <div className="mt-2">
               <LandingPageCard />
@@ -58,7 +76,7 @@ export default function LandingPageFirstSection() {
           </div>
           <div className="flex flex-col">
             <div className="mt-[110px]">
-              <LandingPageCardLeft  width={200} height={400}  />
+              <LandingPageCardLeft width={200} height={400} title="35" description="ok" />
             </div>
           </div>
           <div>
@@ -67,18 +85,18 @@ export default function LandingPageFirstSection() {
             </div>
           </div>
           <div className="mt-[110px]">
-            <LandingPageCardRight width={200} height={400}/>
+            <LandingPageCardLeft width={200} height={400} title="42" description="ok" />
           </div>
           <div>
-             <div className="ml-18">
-              <LandingPageCardRight width={200} height={400}/>
+            <div className="ml-18">
+              <LandingPageCardLeft width={200} height={400} title="55" description="ok" />
             </div>
-            <div className="mt-2"> 
+            <div className="mt-2">
               <LandingPageCard />
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

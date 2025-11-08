@@ -48,6 +48,7 @@ export default function TreasuryDashboard() {
 
   const handleDonate = () => {
     if (!publicKey) {
+      console.log("No public key")
       toast.error("Connect wallet to donate");
       return;
     }

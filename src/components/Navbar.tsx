@@ -20,11 +20,10 @@ interface NavbarProps {
 }
 export const Navbar: React.FC<NavbarProps> = ({
   logo,
-  logoText = "Pracima",
+  logoText = "Daanfi",
   navItems = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
-    { label: "Resources", href: "#resources" },
     { label: "Contact", href: "#contact" }
   ],
   className = ""
@@ -41,7 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               logo
             ) : (
               <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">P</span>
+                <span className="text-white font-bold text-sm">D</span>
               </div>
             )}
             <span className="text-xl font-semibold text-gray-800">{logoText}</span>
@@ -49,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Desktop/Tablet Navigation - Centered */}
           <div className="hidden sm:flex items-center absolute left-1/2 transform -translate-x-1/2">
-            {navItems.map((item, index) => (
+            {navItems.map((item, index) => (  
               <React.Fragment key={item.label}>
                 <a
                   href={item.href}
