@@ -195,7 +195,7 @@ export default function TreasuryDashboard() {
                   TOTAL BALANCE
                 </div>
                 <div className="text-5xl font-bold text-gray-900">
-                  ${Number(treasuryBalance * Number(`curValue`)).toFixed(2)}
+                  ${Number(treasuryBalance * Number(curValue)).toFixed(2)}
                 </div>
               </div>
               <div>
