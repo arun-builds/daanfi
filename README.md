@@ -1,83 +1,84 @@
-# daanfi
 
-This is a Vite app containing:
+# DaanFi
 
-- Tailwind CSS setup for styling
-- Useful wallet UI elements setup using [@solana/web3.js](https://www.npmjs.com/package/@solana/web3.js)
-- A basic Greeter Solana program written in Anchor
-- UI components for interacting with the Greeter program using the Anchor generated client
+DaanFi is a decentralized charity platform where a central treasury distributes funds to campaigns based on community votes. Each user has reputation points that determine their voting power, ensuring transparent, fair, and trust-based fund allocation.
 
-## Getting Started
+# Landing Page
 
-### Installation
+![App Screenshot](https://i.postimg.cc/q7xwWpZW/Screenshot-2025-11-08-160612.png)
 
 
-#### Install Dependencies
+# Treasury
+![App Screenshot](https://i.postimg.cc/fbzmtmB9/Screenshot-2025-11-08-162901.png)
 
-```shell
-bun install
+# Campaigns
+![App Screenshot](https://i.postimg.cc/GhDN387C/Screenshot-2025-11-08-163147.png)
+
+
+## Features
+
+- Decentralized Treasury
+- Campaign Creation
+- Voting Mechanism
+- Reputation System
+- Transparent Transactions
+
+## Tech Stack
+
+**Client:** React
+
+**Server:** Node, Express
+
+**Contract:** Anchor, Rust
+## Installation
+
+Install my-project with npm
+
+```bash
+  bun install my-project
+  cd my-project
+```
+    
+## Contributing
+
+Contributions are always welcome!
+
+See `contributing.md` for ways to get started.
+
+Please adhere to this project's `code of conduct`.
+
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://link-to-project
 ```
 
-## Apps
+Go to the project directory
 
-### anchor
-
-This is a Solana program written in Rust using the Anchor framework.
-
-#### Commands
-
-You can use any normal anchor commands. Either move to the `anchor` directory and run the `anchor` command or prefix the
-command with `bun`, eg: `pnpm anchor`.
-
-#### Sync the program id:
-
-Running this command will create a new keypair in the `anchor/target/deploy` directory and save the address to the
-Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file of the program.
-
-You will manually need to update the constant in `anchor/lib/counter-exports.ts` to match the new program id.
-
-```shell
-bun anchor keys sync
+```bash
+  cd my-project
 ```
 
-#### Build the program:
+Install dependencies
 
-```shell
-bun anchor-build
+```bash
+  bun install
 ```
 
-#### Start the test validator with the program deployed:
+Start the server
 
-```shell
-bun anchor-localnet
+```bash
+  bun run start
 ```
 
-#### Run the tests
+## Contact  
 
-```shell
-bun anchor-test
-```
+For inquiries or support related to **HealthyAI**, please reach out via:  
 
-#### Deploy to Devnet
+- [📸 Instagram](https://instagram.com/your_username)  
+- [💼 LinkedIn](https://linkedin.com/in/your_username)  
 
-```shell
-bun anchor deploy --provider.cluster devnet
-```
-
-### web
-
-This is a React app that uses the Anchor generated client to interact with the Solana program.
-
-#### Commands
-
-Start the web app
-
-```shell
-bun dev
-```
-
-Build the web app
-
-```shell
-bun build
-```
+Your feedback and suggestions are greatly appreciated! 🙌
