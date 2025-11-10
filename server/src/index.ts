@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import nacl from 'tweetnacl'; 
 import bs58 from 'bs58';
+import Razorpay from "razorpay"
 
 import { User, Nonce, Transaction } from './db/schema';
 import { requireAuth } from './middlewares/middleware';
@@ -17,7 +18,16 @@ app.use(cors());
 app.use(express.json());
 
 
+
+
 dotenv.config();
+
+export const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_API_KEY,
+  key_secret: process.env.RAZORPAY_API_SECRET,
+});
+
+
 
 const DATABASE_URL = process.env.DATABASE_URL;
 export const JWT_SECRET = process.env.JWT_SECRET || 'daanfi_secret_key';
@@ -27,6 +37,101 @@ try {
 } catch (err) {
     console.error('Error connecting to MongoDB', err);
 }
+
+
+app.post("/process/payment", async (req, res) => {
+  try {
+    const { amount, currency = "INR", walletAddress } = req.body;
+
+    if (!amount || isNaN(Number(amount))) {
+      return res.status(400).json({ success: false, message: "Invalid amount" });
+    }
+
+    const options = {
+      amount: Math.round(Number(amount) * 100), // paise
+      currency,
+      receipt: crypto.randomBytes(10).toString("hex"),
+    };
+
+    const order = await razorpay.orders.create(options);
+    // Optionally: attach the walletAddress to order metadata on your side (DB) if you want to link later
+    return res.status(200).json({ success: true, order });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    return res.status(500).json({ success: false, message: "Error creating order" });
+  }
+});
+
+/**
+ * Verify payment signature, record transaction, and trigger on-chain action
+ * Expects: razorpay_order_id, razorpay_payment_id, razorpay_signature
+ * Optionally: walletAddress, amount (for recording & minting)
+ */
+app.post("/verify-payment", async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      walletAddress,
+      amount,
+    } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Missing Razorpay fields" });
+    }
+
+    // Create expected HMAC signature
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_API_SECRET!)
+      .update(body)
+      .digest("hex");
+
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    if (!isAuthentic) {
+      return res.status(400).json({ success: false, message: "Invalid signature" });
+    }
+
+    // Save transaction in DB
+    const tx = await Transaction.create({
+      walletAddress: walletAddress || "unknown",
+      amount: Number(amount) || 0,
+      transactionType: "Razorpay",
+      transactionSignature: razorpay_payment_id,
+    });
+
+    // Trigger on-chain action (placeholder)
+    // IMPORTANT: implement your actual mint/transfer function depending on your chain
+    try {
+      if (walletAddress) {
+        // e.g., await mintTokenOnChain(walletAddress, amount);
+        console.log(`Would mint token for ${walletAddress} amount=${amount}`);
+      }
+    } catch (chainErr) {
+      console.error("On-chain action failed:", chainErr);
+      // Consider marking tx as pending or failed in DB — do NOT revert verification.
+    }
+
+    return res.status(200).json({ success: true, message: "Payment verified", transaction: tx });
+  } catch (err) {
+    console.error("verify-payment error:", err);
+    return res.status(500).json({ success: false, message: "Server error verifying payment" });
+  }
+});
+
+/* Optional: get transactions */
+app.get("/api/transactions", async (req, res) => {
+  try {
+    const txs = await Transaction.find().sort({ createdAt: -1 }).limit(200);
+    res.status(200).json({ success: true, transactions: txs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching transactions" });
+  }
+})
+
+
 
 
 app.get('/adddata',requireAuth, async(req, res) => {
