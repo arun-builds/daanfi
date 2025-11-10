@@ -15,6 +15,7 @@ import ContentPage from './pages/ContentPage';
 import CampaignDetail from './components/campagins/CampaignDetail';
 import { UserPda } from './components/user/UserPda';
 import { Campaigns } from './components/campagins/Campaigns';
+import Payment from './components/donate/Demobutton';
 
 // const links = [
 //   //
@@ -54,6 +55,7 @@ return (
   <AppProviders>
     {/* <AppLayout links={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Campaigns', path: '/campaigns' }]}> */}
       <Routes>
+         <Route path="/demo" element={<Payment/>}/>
     <Route path="/donate" element={<Donate />} />
     <Route path="/" element={<LandingPage  />} />
     <Route path="/dashboard" element={<TreasuryDashboard  />} />
@@ -64,6 +66,7 @@ return (
 
     <Route path="/user" element={<User />} />
     <Route path="/profile" element={<ProfilePage />} />
+   
 
     <Route path="/user-pda" element={<UserPda />} />
     {/* <Route path="/campaign/:sponsor/:id" element={<CampaignDetail />} /> */}
